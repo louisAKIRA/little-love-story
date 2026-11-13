@@ -1,0 +1,133 @@
+@import "tailwindcss";
+
+:root {
+  --pink: #F7A8C8;
+  --white: #FFF9FC;
+  --purple: #8B5CF6;
+  --purple-dark: #6A3FD0;
+  --ink: #75445D;
+  --pink-dark: #D979A6;
+  --muted: #9A6B83;
+}
+* { box-sizing: border-box; }
+html { background: var(--pink); }
+body { margin: 0; color: var(--ink); font-family: var(--font-thai), "Noto Sans Thai", Tahoma, sans-serif; }
+button { font: inherit; cursor: pointer; }
+h1, h2, h3 { font-weight: 800; }
+
+/* ---------- โครงหน้า ---------- */
+.page-shell {
+  min-height: 100svh; position: relative; overflow: hidden;
+  padding: 24px 18px 36px;
+  background: linear-gradient(180deg, #F8B9D2 0%, #F7A8C8 45%, #F6B4CE 100%);
+}
+.sky-glow { position: absolute; width: 420px; height: 420px; border-radius: 50%; background: #fff8fc55; filter: blur(65px); top: 80px; left: 50%; transform: translateX(-50%); pointer-events: none; }
+.site-header, .hero, .progress, .meadow, .card, .message-card, .actions, .footer {
+  position: relative; z-index: 1; width: min(100%, 480px); margin-left: auto; margin-right: auto;
+}
+.site-header { display: flex; align-items: center; justify-content: space-between; color: #8C4D6B; }
+.brand-mark { display: flex; align-items: center; gap: 7px; font-size: 11px; font-weight: 800; letter-spacing: .13em; }
+.header-note { font-size: 11px; opacity: .8; }
+.hero { text-align: center; padding-top: 28px; }
+.eyebrow { display: flex; justify-content: center; align-items: center; gap: 6px; margin: 0 0 10px; color: var(--purple); font-size: 11px; font-weight: 800; letter-spacing: .14em; }
+.hero h1 { margin: 0; color: #fffafd; font-size: clamp(22px, 6.5vw, 30px); line-height: 1.5; text-shadow: 2px 3px 0 #dc83aa; }
+.hero-copy { margin: 7px 0 0; color: #7A4560; font-size: 13px; }
+
+/* ---------- แถบขั้นตอน ---------- */
+.progress { display: flex; justify-content: center; margin-top: 20px; }
+.progress-item { display: flex; align-items: center; }
+.progress-line { width: 14px; height: 2px; margin: 0 4px; background: #fff; opacity: .7; }
+.progress-step { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 800; color: #A2698A; }
+.progress-step i { width: 22px; height: 22px; display: grid; place-items: center; border-radius: 50%; border: 2px solid #FBE0EC; background: #fff; font-style: normal; font-size: 11px; }
+.progress-step.active { color: #5E33C2; }
+.progress-step.active i { border-color: var(--purple); background: #F5F0FF; color: #5E33C2; }
+.progress-step.done i { border-color: var(--purple); background: var(--purple); color: #fff; }
+
+/* ---------- ฉากทุ่งดอกไม้ ---------- */
+.meadow { height: 300px; margin-top: 20px; overflow: hidden; border: 3px solid #fff7fb; border-radius: 24px; background: linear-gradient(#C8E9F2 0%, #E5F4E8 70%, #A9D7A5 100%); box-shadow: 0 8px 0 #d889ae55; }
+.meadow-compact { height: 270px; }
+.sun { position: absolute; top: 22px; right: 36px; color: #FFD77A; font-size: 37px; animation: sun-pulse 3s ease-in-out infinite; }
+@keyframes sun-pulse { 50% { transform: rotate(20deg) scale(1.08); } }
+.cloud { position: absolute; width: 66px; height: 19px; border-radius: 20px; background: #fff9fc; opacity: .9; }
+.cloud::before, .cloud::after { content: ""; position: absolute; bottom: 5px; border-radius: 50%; background: inherit; }
+.cloud::before { width: 28px; height: 28px; left: 10px; }
+.cloud::after { width: 22px; height: 22px; right: 9px; }
+.cloud-one { top: 44px; left: 12%; animation: cloud-drift 8s ease-in-out infinite alternate; }
+.cloud-two { top: 78px; right: 15%; transform: scale(.7); animation: cloud-drift 10s ease-in-out infinite alternate-reverse; }
+@keyframes cloud-drift { to { translate: 12px 0; } }
+.hill { position: absolute; width: 130%; left: -15%; border-radius: 50% 50% 0 0; }
+.hill-back { height: 130px; bottom: 12px; background: #A9D99E; transform: rotate(-4deg); }
+.hill-front { height: 100px; bottom: -24px; background: #83C78E; transform: rotate(4deg); }
+
+.stage { position: absolute; z-index: 3; left: 0; right: 0; bottom: 46px; display: flex; justify-content: center; align-items: flex-end; gap: 18px; }
+.sprite-wrap { position: relative; display: flex; justify-content: center; align-items: flex-end; }
+.sprite-wrap svg { position: relative; z-index: 2; display: block; filter: drop-shadow(3px 4px 0 #477b4a22); }
+.sprite-shadow { position: absolute; z-index: 1; left: 8%; right: 8%; bottom: -7px; height: 14px; border-radius: 50%; background: #477b4a33; filter: blur(2px); }
+.sprite-girl { animation: idle-girl 2.4s steps(2, end) infinite; }
+.sprite-pet { animation: idle-pet 2.1s steps(3, end) infinite; }
+@keyframes idle-girl { 50% { transform: translateY(-3px); } }
+@keyframes idle-pet { 50% { transform: translateY(-7px); } }
+.sprite-heart { position: absolute; z-index: 4; top: -14px; right: 6%; color: #E879AA; font-size: 19px; animation: tiny-heart 1.2s steps(2, end) infinite; }
+.sprite-cat .sprite-heart { right: 10%; }
+@keyframes tiny-heart { 50% { transform: translateY(-6px) scale(1.15); } }
+
+.float-heart { position: absolute; z-index: 1; bottom: 60px; color: #fff; font-size: 18px; opacity: 0; text-shadow: 1px 2px #d47da2; animation: float-up 4.5s ease-in infinite; }
+@keyframes float-up { 0% { transform: translateY(0); opacity: 0; } 15% { opacity: .9; } 100% { transform: translateY(-150px) rotate(12deg); opacity: 0; } }
+
+.flower-row { position: absolute; z-index: 4; inset: auto 0 0; height: 75px; pointer-events: none; }
+.flower-row span { position: absolute; bottom: 12px; color: #fff4fb; font-size: 23px; text-shadow: 1px 2px #d47da2; animation: flower-sway 2.5s ease-in-out infinite alternate; }
+.flower-row-back { bottom: 24px; transform: scale(.72); opacity: .85; }
+.flower-row-front span { color: #FFE6F1; }
+@keyframes flower-sway { to { transform: rotate(13deg) translateY(-3px); } }
+
+/* ---------- การ์ดตัวเลือก ---------- */
+.card { margin-top: 22px; padding: 20px; border: 2px solid #fff; border-radius: 20px; background: var(--white); box-shadow: 0 6px 0 #d889ae44; }
+.section-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 10px; color: var(--purple); }
+.section-kicker { color: #B9829D; font-size: 10px; font-weight: 800; letter-spacing: .15em; }
+.section-heading h2 { margin: 3px 0 0; color: var(--ink); font-size: 18px; }
+.btn-icon { display: inline-flex; align-items: center; gap: 6px; padding: 8px 11px; border: 1px solid #E7D8F8; border-radius: 9px; background: #F7F2FF; color: #8057C9; font-size: 11px; font-weight: 800; white-space: nowrap; }
+.btn-icon:hover { background: #EFE6FF; }
+
+.option-block { margin-top: 18px; }
+.option-title { display: flex; justify-content: space-between; align-items: center; color: var(--ink); font-size: 13px; font-weight: 800; }
+.option-title small { color: #B58A9F; font-size: 11px; font-weight: 500; }
+.swatches { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 12px; }
+.swatch { width: 32px; height: 32px; border: 2px solid #fff; outline: 1px solid #EBD5E0; border-radius: 50%; display: grid; place-items: center; color: #fff; font-size: 14px; text-shadow: 0 1px 3px #555; transition: transform .15s; }
+.swatch:hover { transform: scale(1.08); }
+.swatch.active { outline: 2px solid var(--purple); outline-offset: 2px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 11px; }
+.chip { display: inline-flex; align-items: center; gap: 7px; padding: 9px 12px; border: 1px solid #EBD5E0; border-radius: 10px; background: #fff; color: #8A5E76; font-size: 12px; font-weight: 600; transition: .15s; }
+.chip:hover { border-color: #D9B9CB; }
+.chip.active { border-color: var(--purple); background: #F4EFFF; color: #5E33C2; font-weight: 800; box-shadow: 0 0 0 3px #8b5cf61a; }
+.chip-emoji { font-size: 18px; line-height: 1; }
+.chip-dots { display: inline-flex; gap: 3px; }
+.chip-dots i { width: 10px; height: 10px; border-radius: 50%; border: 1px solid #0002; }
+
+/* ---------- ปุ่ม ---------- */
+.actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
+.btn { flex: 1; min-width: 130px; display: inline-flex; align-items: center; justify-content: center; gap: 7px; padding: 12px 16px; border: 2px solid transparent; border-radius: 12px; font-size: 13px; font-weight: 800; transition: .15s; }
+.btn-primary { background: var(--purple); color: #fff; box-shadow: 0 4px 0 var(--purple-dark); }
+.btn-primary:hover { background: #7E4DF0; }
+.btn-primary:active { transform: translateY(3px); box-shadow: none; }
+.btn-ghost { background: #fff; color: #8057C9; border-color: #E7D8F8; box-shadow: 0 4px 0 #e7d8f8; }
+.btn-ghost:active { transform: translateY(3px); box-shadow: none; }
+.btn-soft { flex: 0 1 auto; background: #F7F2FF; color: #8057C9; border-color: #E7D8F8; font-size: 12px; padding: 10px 14px; }
+
+/* ---------- การ์ดข้อความ ---------- */
+.message-card { margin-top: 22px; padding: 22px 20px 20px; border: 2px solid #fff; border-radius: 20px; background: var(--white); text-align: center; box-shadow: 0 6px 0 #d889ae44; overflow: hidden; }
+.message-icon { width: 38px; height: 38px; display: grid; place-items: center; margin: 0 auto 10px; border-radius: 12px; background: #FCE5F0; color: var(--pink-dark); }
+.message-label { margin: 0; color: #B9829D; font-size: 10px; font-weight: 800; letter-spacing: .13em; }
+.message-card h2 { max-width: 330px; margin: 11px auto 16px; color: var(--ink); font-size: 16px; line-height: 1.8; font-weight: 600; }
+.message-decoration { position: absolute; right: 15px; top: 9px; color: #F2B6D0; font-size: 25px; }
+.footer { margin-top: 26px; text-align: center; color: #7F4661; font-size: 11px; letter-spacing: .08em; }
+.footer span { color: var(--purple); }
+
+@media (min-width: 700px) {
+  .page-shell { padding-top: 32px; }
+  .hero { padding-top: 36px; }
+  .meadow { height: 330px; }
+  .meadow-compact { height: 290px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}
