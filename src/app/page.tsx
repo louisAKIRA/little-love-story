@@ -8,7 +8,8 @@ import Meadow from "@/components/Meadow";
 import { OptionBlock, Swatches, Chips } from "@/components/Controls";
 import { skinTones, hairStyles, hairColors, outfits } from "@/config/character";
 import { petKinds, coats, type PetKind } from "@/config/pets";
-import { encouragements, copy } from "@/config/messages";
+import { encouragements, copy, recipientName } from "@/config/messages";
+import { withName } from "@/lib/text";
 
 type Step = 0 | 1 | 2;
 
@@ -69,7 +70,7 @@ export default function Home() {
 
   const nextMessage = () => setMessageIndex((current) => (current + 1) % encouragements.length);
 
-  const stepNames = [copy.steps.character, copy.steps.pet, copy.steps.result];
+  const stepNames = [copy.steps.character, copy.steps.pet, withName(copy.steps.result)];
 
   return (
     <main className="page-shell">
@@ -77,13 +78,13 @@ export default function Home() {
 
       <header className="site-header">
         <div className="brand-mark"><Heart size={15} fill="currentColor" /> {copy.brand}</div>
-        <span className="header-note">{copy.headerNote}</span>
+        <span className="header-note">{withName(copy.headerNote)}</span>
       </header>
 
       <section className="hero">
         <p className="eyebrow"><Sparkles size={13} /> {copy.heroEyebrow}</p>
-        <h1>{step === 2 ? copy.resultTitle : copy.heroTitle}</h1>
-        <p className="hero-copy">{step === 2 ? copy.resultSubtitle : copy.heroSubtitle}</p>
+        <h1>{withName(step === 2 ? copy.resultTitle : copy.heroTitle)}</h1>
+        <p className="hero-copy">{withName(step === 2 ? copy.resultSubtitle : copy.heroSubtitle)}</p>
       </section>
 
       <nav className="progress" aria-label="ขั้นตอน">
@@ -186,18 +187,18 @@ export default function Home() {
       {/* ---------- ขั้นที่ 3: ทุ่งดอกไม้ของเธอ ---------- */}
       {step === 2 && (
         <>
-          <Meadow label="ทุ่งดอกไม้ของเธอ">
+          <Meadow label={withName(copy.steps.result)}>
             <span className="float-heart" style={{ left: "18%", animationDelay: "0s" }} aria-hidden="true">♡</span>
             <span className="float-heart" style={{ left: "72%", animationDelay: "1.6s" }} aria-hidden="true">♡</span>
             <span className="float-heart" style={{ left: "48%", animationDelay: "2.9s" }} aria-hidden="true">♡</span>
-            <PixelGirl skin={skin.color} hairStyle={hairStyle} hairColor={hairColor.color} outfit={outfit} />
+            <PixelGirl skin={skin.color} hairStyle={hairStyle} hairColor={hairColor.color} outfit={outfit} name={recipientName.trim() || undefined} />
             <PixelPet kind={petKind} coat={coat} />
           </Meadow>
 
           <section className="message-card">
             <div className="message-icon"><Heart size={19} fill="currentColor" /></div>
             <p className="message-label">{copy.resultLabel}</p>
-            <h2 aria-live="polite">{encouragements[messageIndex]}</h2>
+            <h2 aria-live="polite">{withName(encouragements[messageIndex])}</h2>
             <button type="button" className="btn btn-soft" onClick={nextMessage}>
               <RefreshCw size={14} /> {copy.buttons.nextMessage}
             </button>
@@ -215,7 +216,7 @@ export default function Home() {
         </>
       )}
 
-      <footer className="footer">{copy.footer} <span>♡</span></footer>
+      <footer className="footer">{withName(copy.footer)} <span>♡</span></footer>
     </main>
   );
 }

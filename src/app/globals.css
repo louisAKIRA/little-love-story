@@ -69,6 +69,7 @@ h1, h2, h3 { font-weight: 800; }
 @keyframes idle-pet { 50% { transform: translateY(-7px); } }
 .sprite-heart { position: absolute; z-index: 4; top: -14px; right: 6%; color: #E879AA; font-size: 19px; animation: tiny-heart 1.2s steps(2, end) infinite; }
 .sprite-cat .sprite-heart { right: 10%; }
+.name-tag { position: absolute; z-index: 4; top: -30px; left: 50%; transform: translateX(-50%); padding: 4px 9px; border: 1px solid #fff; border-radius: 6px; background: #fff9f2dd; color: #8c5a7a; font-size: 11px; font-weight: 800; white-space: nowrap; }
 @keyframes tiny-heart { 50% { transform: translateY(-6px) scale(1.15); } }
 
 .float-heart { position: absolute; z-index: 1; bottom: 60px; color: #fff; font-size: 18px; opacity: 0; text-shadow: 1px 2px #d47da2; animation: float-up 4.5s ease-in infinite; }

@@ -8,9 +8,10 @@ type Props = {
   hairColor: string;
   outfit: Outfit;
   scale?: number;
+  name?: string;
 };
 
-export default function PixelGirl({ skin, hairStyle, hairColor, outfit, scale = 7 }: Props) {
+export default function PixelGirl({ skin, hairStyle, hairColor, outfit, scale = 7, name }: Props) {
   const layers = [
     {
       rows: bodyRows,
@@ -28,6 +29,7 @@ export default function PixelGirl({ skin, hairStyle, hairColor, outfit, scale = 
 
   return (
     <div className="sprite-wrap sprite-girl">
+      {name && <div className="name-tag">♡ {name}</div>}
       <div className="sprite-shadow" />
       <PixelSprite layers={layers} width={GIRL_WIDTH} height={GIRL_HEIGHT} scale={scale} label="ตัวละครพิกเซล" />
     </div>
