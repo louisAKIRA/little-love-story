@@ -1,6 +1,9 @@
 import type { Metadata, Viewport } from "next";
 import { Noto_Sans_Thai } from "next/font/google";
 import "./globals.css";
+import { copy } from "@/config/messages";
+import { siteUrl } from "@/config/site";
+import { withName } from "@/lib/text";
 
 const notoSansThai = Noto_Sans_Thai({
   subsets: ["thai", "latin"],
@@ -9,9 +12,26 @@ const notoSansThai = Noto_Sans_Thai({
   display: "swap",
 });
 
+const shareTitle = withName(copy.shareTitle);
+const shareDescription = withName(copy.shareDescription);
+
+// ชื่อ คำอธิบาย และรูปพรีวิว (src/app/opengraph-image.tsx) ตอนส่งลิงก์ใน LINE / Facebook
 export const metadata: Metadata = {
-  title: "A Little Flower Field ♡",
-  description: "A tiny pixel world made to cheer you up.",
+  metadataBase: new URL(siteUrl),
+  title: shareTitle,
+  description: shareDescription,
+  openGraph: {
+    title: shareTitle,
+    description: shareDescription,
+    type: "website",
+    locale: "th_TH",
+    siteName: copy.brand,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: shareTitle,
+    description: shareDescription,
+  },
 };
 
 export const viewport: Viewport = {

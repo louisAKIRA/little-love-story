@@ -159,6 +159,32 @@ h1, h2, h3 { font-weight: 800; }
 .mood-emoji { font-size: 22px; line-height: 1.2; }
 .daily-label { margin: 16px 0 0; color: #B9829D; font-size: 11px; font-weight: 800; letter-spacing: .06em; }
 
+/* ---------- จดหมายลับ ---------- */
+.letter-card { position: relative; z-index: 1; display: flex; align-items: center; gap: 16px; width: min(100%, 480px); margin: 22px auto 0; padding: 18px 20px; border: 2px solid #fff; border-radius: 20px; background: var(--white); box-shadow: 0 6px 0 #d889ae44; }
+.letter-envelope { flex-shrink: 0; display: grid; place-items: center; width: 84px; height: 72px; border-radius: 14px; background: #FCE5F0; }
+.letter-envelope svg { display: block; }
+.letter-card.locked .letter-envelope svg { filter: grayscale(.7); opacity: .65; }
+.letter-card.is-new .letter-envelope svg { animation: envelope-wiggle 1.6s ease-in-out infinite; }
+@keyframes envelope-wiggle { 0%, 60%, 100% { transform: rotate(0); } 70% { transform: rotate(-8deg) scale(1.05); } 80% { transform: rotate(8deg) scale(1.05); } 90% { transform: rotate(-4deg); } }
+.letter-body { flex: 1; min-width: 0; }
+.letter-title { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 0; color: var(--ink); font-size: 15px; font-weight: 800; }
+.letter-badge { padding: 2px 8px; border-radius: 999px; background: #F26A9E; color: #fff; font-size: 10px; font-weight: 800; letter-spacing: .04em; }
+.letter-hint { margin: 6px 0 10px; color: #8A5E76; font-size: 12px; line-height: 1.6; }
+.letter-progress { display: grid; grid-template-columns: 112px 1fr; align-items: center; gap: 8px; margin-top: 6px; color: #9A6B83; font-size: 11px; font-weight: 600; }
+.progress-track { height: 8px; border-radius: 999px; background: #F6E3EC; overflow: hidden; overflow: clip; }
+.progress-track i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #F7A8C8, #8B5CF6); }
+.letter-open { flex: 0 1 auto; min-width: 0; margin-top: 10px; padding: 10px 16px; }
+
+.letter-dialog { width: min(100% - 32px, 440px); max-height: min(100% - 48px, 680px); margin: auto; padding: 0; border: 0; border-radius: 22px; background: transparent; overflow: visible; }
+.letter-dialog::backdrop { background: #4a2a3ccc; }
+.letter-dialog[open] { animation: letter-in .35s ease-out; }
+@keyframes letter-in { from { transform: translateY(24px) scale(.96); opacity: 0; } to { transform: none; opacity: 1; } }
+.letter-paper { max-height: min(100vh - 48px, 680px); overflow-y: auto; padding: 28px 24px 22px; border: 3px solid #fff; border-radius: 22px; background: #FFFDF7; color: #6E3F58; font-size: 15px; line-height: 2; box-shadow: 0 10px 0 #d889ae66; }
+.letter-paper p { margin: 0 0 14px; }
+.letter-greeting { font-size: 17px; font-weight: 800; color: var(--ink); }
+.letter-signature { text-align: right; font-weight: 800; color: #B44D7E; }
+.letter-paper .btn-soft { display: flex; width: 100%; justify-content: center; margin-top: 8px; }
+
 /* ---------- ปุ่มเพลง ---------- */
 .music-toggle { position: fixed; z-index: 20; right: 16px; bottom: 16px; display: inline-flex; align-items: center; gap: 6px; padding: 10px 14px; border: 2px solid #fff; border-radius: 999px; background: #FFF9FC; color: #8057C9; font-size: 12px; font-weight: 800; box-shadow: 0 4px 0 #d889ae66; }
 .music-toggle.on { background: var(--purple); color: #fff; box-shadow: 0 4px 0 var(--purple-dark); }
