@@ -1,16 +1,30 @@
 "use client";
 
-import { useState } from "react";
-import { Heart, Sparkles, Shuffle, ArrowLeft, ArrowRight, RefreshCw, Flower2, Pencil, Volume2, VolumeX } from "lucide-react";
+import { useRef, useState } from "react";
+import { Heart, Sparkles, Shuffle, ArrowLeft, ArrowRight, RefreshCw, Flower2, Pencil, Volume2, VolumeX, Camera } from "lucide-react";
 import PixelGirl from "@/components/PixelGirl";
-import PixelPet from "@/components/PixelPet";
+import PixelPet, { type PetHandle } from "@/components/PixelPet";
 import Meadow from "@/components/Meadow";
 import { OptionBlock, Swatches, Chips, ToggleChips } from "@/components/Controls";
 import { skinTones, hairStyles, hairColors, outfits, girlAccessories } from "@/config/character";
 import { petKinds, coats, petAccessories, type PetKind } from "@/config/pets";
-import { encouragements, copy, recipientName, moods, petDefaultNames, petTapLines } from "@/config/messages";
+import {
+  encouragements,
+  copy,
+  recipientName,
+  moods,
+  petDefaultNames,
+  petTapLines,
+  petTreats,
+  petTreatLines,
+  tapMilestones,
+  nightMode,
+} from "@/config/messages";
 import { withName } from "@/lib/text";
 import { useChiptune } from "@/lib/chiptune";
+import { useDayNumber, useIsNight } from "@/lib/time";
+import { renderSceneImage } from "@/lib/sceneImage";
+import type { GirlLook, PetLook } from "@/lib/sprites";
 
 type Step = 0 | 1 | 2;
 
@@ -20,6 +34,7 @@ const randomSubset = <T extends { id: string }>(list: readonly T[], chance: numb
   list.filter(() => Math.random() < chance).map((item) => item.id);
 
 const PET_NAME_MAX = 12;
+const FEED_COOLDOWN_MS = 800;
 
 const defaults = {
   skin: skinTones[0].id,
@@ -43,22 +58,46 @@ export default function Home() {
   const [petNameInput, setPetNameInput] = useState("");
   const [moodId, setMoodId] = useState<string | null>(null);
   const [messageIndex, setMessageIndex] = useState(0);
+  const [tapCount, setTapCount] = useState(0);
+  const [feedLocked, setFeedLocked] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const tapCountRef = useRef(0);
+  const petRef = useRef<PetHandle>(null);
   const music = useChiptune();
+  const night = useIsNight();
+  const dayNumber = useDayNumber();
 
   const skin = skinTones.find((item) => item.id === skinId) ?? skinTones[0];
   const hairStyle = hairStyles.find((item) => item.id === hairStyleId) ?? hairStyles[0];
   const hairColor = hairColors.find((item) => item.id === hairColorId) ?? hairColors[0];
   const outfit = outfits.find((item) => item.id === outfitId) ?? outfits[0];
   const coat = coats.find((item) => item.id === coatId) ?? coats[0];
-  const girlGear = girlAccessories.filter((item) => girlAccessoryIds.includes(item.id));
-  const petGear = petAccessories.filter((item) => petAccessoryIds.includes(item.id));
+
+  const girlLook: GirlLook = {
+    skin: skin.color,
+    hairStyle,
+    hairColor: hairColor.color,
+    outfit,
+    accessories: girlAccessories.filter((item) => girlAccessoryIds.includes(item.id)),
+  };
+  const petLook: PetLook = {
+    kind: petKind,
+    coat,
+    accessories: petAccessories.filter((item) => petAccessoryIds.includes(item.id)),
+  };
+
   const petName = petNameInput.trim() || petDefaultNames[petKind];
+  const treat = petTreats[petKind];
   const fill = (text: string) => withName(text, petName);
   const tapLines = petTapLines[petKind].map(fill);
+  const nightGreeting = night ? fill(nightMode.petGreeting[petKind]) : null;
 
+  // ข้อความ: เริ่มจากข้อความประจำวัน แล้วปุ่ม "ขออีกอัน" วนต่อจากตรงนั้น
   const mood = moods.find((item) => item.id === moodId) ?? null;
   const messagePool = mood && mood.messages.length > 0 ? mood.messages : encouragements;
-  const currentMessage = messagePool.length > 0 ? fill(messagePool[messageIndex % messagePool.length]) : "";
+  const dailyOffset = dayNumber ?? 0;
+  const currentMessage = messagePool.length > 0 ? fill(messagePool[(dailyOffset + messageIndex) % messagePool.length]) : "";
+  const showDailyLabel = !mood && messageIndex === 0 && dayNumber !== null;
 
   const goTo = (next: Step) => {
     setStep(next);
@@ -84,6 +123,70 @@ export default function Home() {
     setMessageIndex(0);
   };
 
+  // นับจำนวนจิ้ม ถ้าครบตามที่ตั้งไว้ คืนประโยคพิเศษให้น้องพูด
+  const handlePetTap = () => {
+    music.blip();
+    tapCountRef.current += 1;
+    const count = tapCountRef.current;
+    setTapCount(count);
+    const milestone = tapMilestones.find((item) => item.count === count);
+    return milestone ? fill(milestone.text).replaceAll("{count}", String(count)) : null;
+  };
+
+  const feedPet = () => {
+    if (feedLocked) return;
+    setFeedLocked(true);
+    window.setTimeout(() => setFeedLocked(false), FEED_COOLDOWN_MS);
+    music.blip();
+    const lines = petTreatLines[petKind];
+    petRef.current?.feed(lines.length > 0 ? fill(pick(lines)) : null);
+  };
+
+  const saveImage = async () => {
+    if (saving) return;
+    setSaving(true);
+    try {
+      const blob = await renderSceneImage({
+        girl: girlLook,
+        pet: petLook,
+        girlName: recipientName.trim() || undefined,
+        petName,
+        brand: copy.brand,
+        title: fill(copy.steps.result),
+        dateText: new Date().toLocaleDateString("th-TH", { day: "numeric", month: "long", year: "numeric" }),
+        label: copy.resultLabel,
+        message: currentMessage,
+        footer: fill(copy.footer),
+        night,
+      });
+      const file = new File([blob], copy.imageFileName, { type: "image/png" });
+
+      // มือถือ: เปิดหน้าแชร์ (มีปุ่มบันทึกรูป / ลงสตอรี่) คอมพิวเตอร์: ดาวน์โหลดไฟล์
+      const isTouch = window.matchMedia("(pointer: coarse)").matches;
+      if (isTouch && navigator.canShare?.({ files: [file] })) {
+        try {
+          await navigator.share({ files: [file], title: fill(copy.steps.result) });
+          return;
+        } catch (error) {
+          if (error instanceof DOMException && error.name === "AbortError") return;
+          // แชร์ไม่ได้ ก็ดาวน์โหลดแทน
+        }
+      }
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = copy.imageFileName;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.setTimeout(() => URL.revokeObjectURL(url), 10_000);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const restart = () => {
     setSkinId(defaults.skin);
     setHairStyleId(defaults.hairStyle);
@@ -96,12 +199,15 @@ export default function Home() {
     setPetNameInput("");
     setMoodId(null);
     setMessageIndex(0);
+    tapCountRef.current = 0;
+    setTapCount(0);
     goTo(0);
   };
 
   const nextMessage = () => setMessageIndex((current) => current + 1);
 
   const stepNames = [copy.steps.character, copy.steps.pet, fill(copy.steps.result)];
+  const tapStatus = tapCount > 0 ? fill(copy.tapCounter).replaceAll("{count}", String(tapCount)) : fill(copy.petTapHint);
 
   return (
     <main className="page-shell">
@@ -133,8 +239,8 @@ export default function Home() {
       {/* ---------- ขั้นที่ 1: แต่งตัวละคร ---------- */}
       {step === 0 && (
         <>
-          <Meadow compact label="พรีวิวตัวละคร">
-            <PixelGirl skin={skin.color} hairStyle={hairStyle} hairColor={hairColor.color} outfit={outfit} accessories={girlGear} />
+          <Meadow compact night={night} label="พรีวิวตัวละคร">
+            <PixelGirl look={girlLook} />
           </Meadow>
 
           <section className="card">
@@ -184,10 +290,10 @@ export default function Home() {
       {/* ---------- ขั้นที่ 2: เลือกเพื่อนซี้ ---------- */}
       {step === 1 && (
         <>
-          <Meadow compact label="พรีวิวสัตว์เลี้ยง">
-            <PixelPet kind={petKind} coat={coat} accessories={petGear} name={petName} lines={tapLines} onTap={music.blip} />
+          <Meadow compact night={night} label="พรีวิวสัตว์เลี้ยง">
+            <PixelPet look={petLook} name={petName} lines={tapLines} onTap={handlePetTap} greeting={nightGreeting} treatEmoji={treat.emoji} />
           </Meadow>
-          <p className="meadow-hint">{fill(copy.petTapHint)}</p>
+          <p className="meadow-hint">{tapStatus}</p>
 
           <section className="card">
             <div className="section-heading">
@@ -240,21 +346,27 @@ export default function Home() {
       {/* ---------- ขั้นที่ 3: ทุ่งดอกไม้ ---------- */}
       {step === 2 && (
         <>
-          <Meadow label={fill(copy.steps.result)}>
+          <Meadow night={night} label={fill(copy.steps.result)}>
             <span className="float-heart" style={{ left: "18%", animationDelay: "0s" }} aria-hidden="true">♡</span>
             <span className="float-heart" style={{ left: "72%", animationDelay: "1.6s" }} aria-hidden="true">♡</span>
             <span className="float-heart" style={{ left: "48%", animationDelay: "2.9s" }} aria-hidden="true">♡</span>
-            <PixelGirl
-              skin={skin.color}
-              hairStyle={hairStyle}
-              hairColor={hairColor.color}
-              outfit={outfit}
-              accessories={girlGear}
-              name={recipientName.trim() || undefined}
+            <PixelGirl look={girlLook} name={recipientName.trim() || undefined} />
+            <PixelPet
+              ref={petRef}
+              look={petLook}
+              name={petName}
+              lines={tapLines}
+              onTap={handlePetTap}
+              greeting={nightGreeting}
+              treatEmoji={treat.emoji}
             />
-            <PixelPet kind={petKind} coat={coat} accessories={petGear} name={petName} lines={tapLines} onTap={music.blip} />
           </Meadow>
-          <p className="meadow-hint">{fill(copy.petTapHint)}</p>
+          <div className="meadow-bar">
+            <p className="meadow-hint" aria-live="polite">{tapStatus}</p>
+            <button type="button" className="btn-icon feed-button" onClick={feedPet} disabled={feedLocked}>
+              <span aria-hidden="true">{treat.emoji}</span> {fill(copy.buttons.feed).replaceAll("{treat}", treat.name)}
+            </button>
+          </div>
 
           <section className="message-card">
             <div className="message-icon"><Heart size={19} fill="currentColor" /></div>
@@ -276,6 +388,7 @@ export default function Home() {
               ))}
             </div>
 
+            {showDailyLabel && <p className="daily-label">{copy.dailyLabel}</p>}
             <h2 aria-live="polite">{currentMessage}</h2>
             <button type="button" className="btn btn-soft" onClick={nextMessage}>
               <RefreshCw size={14} /> {copy.buttons.nextMessage}
@@ -283,6 +396,11 @@ export default function Home() {
             <span className="message-decoration" aria-hidden="true">✿</span>
           </section>
 
+          <div className="actions">
+            <button type="button" className="btn btn-primary" onClick={saveImage} disabled={saving} aria-busy={saving}>
+              <Camera size={15} /> {saving ? copy.buttons.savingImage : copy.buttons.saveImage}
+            </button>
+          </div>
           <div className="actions">
             <button type="button" className="btn btn-ghost" onClick={() => goTo(0)}>
               <Pencil size={14} /> {copy.buttons.editCharacter}

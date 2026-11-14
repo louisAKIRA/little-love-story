@@ -1,10 +1,4 @@
-// ตัววาดพิกเซลแบบทั่วไป: รับหลายเลเยอร์ (ลำตัว → เสื้อผ้า → ผม) แล้ววาดทับกันตามลำดับ
-// เลเยอร์หลังสุดใน array จะอยู่บนสุด
-
-export type SpriteLayer = {
-  rows: string[];
-  palette: Record<string, string | undefined>;
-};
+import { compositeLayers, type SpriteLayer } from "@/lib/sprites";
 
 type Props = {
   layers: SpriteLayer[];
@@ -15,21 +9,9 @@ type Props = {
   className?: string;
 };
 
+// วาด sprite เป็น SVG สี่เหลี่ยมเล็ก ๆ หนึ่งช่องต่อหนึ่งพิกเซล
 export default function PixelSprite({ layers, width, height, scale, label, className }: Props) {
-  const rects: { x: number; y: number; fill: string }[] = [];
-
-  for (let y = 0; y < height; y++) {
-    for (let x = 0; x < width; x++) {
-      for (let i = layers.length - 1; i >= 0; i--) {
-        const cell = layers[i].rows[y]?.[x];
-        if (!cell || cell === ".") continue;
-        const fill = layers[i].palette[cell];
-        if (!fill) continue;
-        rects.push({ x, y, fill });
-        break;
-      }
-    }
-  }
+  const pixels = compositeLayers(layers, width, height);
 
   return (
     <svg
@@ -41,8 +23,8 @@ export default function PixelSprite({ layers, width, height, scale, label, class
       role="img"
       aria-label={label}
     >
-      {rects.map((r) => (
-        <rect key={`${r.x}-${r.y}`} x={r.x} y={r.y} width={1} height={1} fill={r.fill} />
+      {pixels.map((p) => (
+        <rect key={`${p.x}-${p.y}`} x={p.x} y={p.y} width={1} height={1} fill={p.fill} />
       ))}
     </svg>
   );
