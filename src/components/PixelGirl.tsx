@@ -1,17 +1,18 @@
 import PixelSprite from "@/components/PixelSprite";
 import { mix } from "@/lib/color";
-import { bodyRows, GIRL_WIDTH, GIRL_HEIGHT, type HairStyle, type Outfit } from "@/config/character";
+import { bodyRows, GIRL_WIDTH, GIRL_HEIGHT, type GirlAccessory, type HairStyle, type Outfit } from "@/config/character";
 
 type Props = {
   skin: string;
   hairStyle: HairStyle;
   hairColor: string;
   outfit: Outfit;
+  accessories?: GirlAccessory[];
   scale?: number;
   name?: string;
 };
 
-export default function PixelGirl({ skin, hairStyle, hairColor, outfit, scale = 7, name }: Props) {
+export default function PixelGirl({ skin, hairStyle, hairColor, outfit, accessories = [], scale = 7, name }: Props) {
   const layers = [
     {
       rows: bodyRows,
@@ -25,6 +26,7 @@ export default function PixelGirl({ skin, hairStyle, hairColor, outfit, scale = 
     },
     { rows: outfit.rows, palette: { a: outfit.colors.a, b: outfit.colors.b, w: "#FFFFFF" } },
     { rows: hairStyle.rows, palette: { h: hairColor, r: "#F26A9E" } },
+    ...accessories.map((item) => ({ rows: item.rows, palette: item.palette })),
   ];
 
   return (

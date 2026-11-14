@@ -39,7 +39,21 @@ export function Swatches({ items, value, onChange, prefix }: { items: SwatchItem
 
 type ChipItem = { id: string; name: string; emoji?: string; colors?: string[] };
 
-// ปุ่มเม็ดยา (ทรงผม เสื้อผ้า หมา/แมว)
+function ChipContent({ item }: { item: ChipItem }) {
+  return (
+    <>
+      {item.emoji && <span className="chip-emoji">{item.emoji}</span>}
+      {item.colors && (
+        <span className="chip-dots" aria-hidden="true">
+          {item.colors.map((color, index) => <i key={index} style={{ background: color }} />)}
+        </span>
+      )}
+      {item.name}
+    </>
+  );
+}
+
+// ปุ่มเม็ดยาแบบเลือกได้อันเดียว (ทรงผม เสื้อผ้า หมา/แมว)
 export function Chips({ items, value, onChange }: { items: ChipItem[]; value: string; onChange: (id: string) => void }) {
   return (
     <div className="chips" role="radiogroup">
@@ -52,15 +66,25 @@ export function Chips({ items, value, onChange }: { items: ChipItem[]; value: st
           onClick={() => onChange(item.id)}
           aria-checked={value === item.id}
         >
-          {item.emoji && <span className="chip-emoji">{item.emoji}</span>}
-          {item.colors && (
-            <span className="chip-dots" aria-hidden="true">
-              {item.colors.map((color, index) => <i key={index} style={{ background: color }} />)}
-            </span>
-          )}
-          {item.name}
+          <ChipContent item={item} />
         </button>
       ))}
+    </div>
+  );
+}
+
+// ปุ่มเม็ดยาแบบเปิด/ปิดได้หลายอัน (เครื่องประดับ)
+export function ToggleChips({ items, values, onToggle }: { items: ChipItem[]; values: string[]; onToggle: (id: string) => void }) {
+  return (
+    <div className="chips" role="group">
+      {items.map((item) => {
+        const on = values.includes(item.id);
+        return (
+          <button key={item.id} type="button" className={`chip ${on ? "active" : ""}`} onClick={() => onToggle(item.id)} aria-pressed={on}>
+            <ChipContent item={item} />
+          </button>
+        );
+      })}
     </div>
   );
 }

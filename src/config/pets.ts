@@ -67,3 +67,50 @@ export const petSprites: Record<PetKind, string[]> = {
     "...ooo....ooo...",
   ],
 };
+
+// =====================================================================
+//  เครื่องประดับน้อง (เลือกได้หลายอัน)
+//  หมากับแมวหัวไม่เท่ากัน เลยแยก rows ของแต่ละตัว
+// =====================================================================
+export type PetAccessory = {
+  id: string;
+  name: string;
+  emoji: string;
+  palette: Record<string, string>;
+  rows: Record<PetKind, string[]>;
+};
+
+const collarRows = [
+  ...Array.from({ length: 8 }, () => "................"),
+  "....rrrrrrrr....",
+  ".......yy.......",
+];
+
+export const petAccessories: PetAccessory[] = [
+  {
+    id: "collar",
+    name: "ปลอกคอกระดิ่ง",
+    emoji: "🔔",
+    palette: { r: "#8B5CF6", y: "#FFD15C" },
+    rows: { cat: collarRows, dog: collarRows },
+  },
+  {
+    id: "bow",
+    name: "โบว์",
+    emoji: "🎀",
+    palette: { p: "#EF4F80", k: "#B8325E" },
+    rows: {
+      cat: [
+        "................",
+        ".........p...p..",
+        ".........ppkpp..",
+        ".........p...p..",
+      ],
+      dog: [
+        "........p...p...",
+        "........ppkpp...",
+        "........p...p...",
+      ],
+    },
+  },
+];
