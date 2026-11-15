@@ -135,6 +135,13 @@ h1, h2, h3 { font-weight: 800; }
 .chip-dots { display: inline-flex; gap: 3px; }
 .chip-dots i { width: 10px; height: 10px; border-radius: 50%; border: 1px solid #0002; }
 
+.category-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 11px; padding: 5px; border-radius: 12px; background: #F8ECF2; }
+.category-tab { position: relative; display: inline-flex; align-items: center; gap: 5px; padding: 7px 10px; border: 0; border-radius: 9px; background: transparent; color: #8A5E76; font-size: 12px; font-weight: 600; transition: .15s; }
+.category-tab:hover { background: #fff8; }
+.category-tab.active { background: #fff; color: #5E33C2; font-weight: 800; box-shadow: 0 2px 0 #e7d8f8; }
+.tab-dot { width: 7px; height: 7px; border-radius: 50%; background: #F26A9E; }
+.accessory-picker .chips { margin-top: 10px; }
+
 .text-input { width: 100%; margin-top: 11px; padding: 11px 13px; border: 1px solid #EBD5E0; border-radius: 10px; background: #fff; color: #6E3F58; font: inherit; font-size: 16px; font-weight: 600; }
 .text-input::placeholder { color: #C4A3B5; }
 .text-input:focus { outline: none; border-color: #8B5CF6; box-shadow: 0 0 0 3px #8b5cf61a; }

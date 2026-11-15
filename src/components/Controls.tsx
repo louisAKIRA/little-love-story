@@ -1,4 +1,6 @@
-import type { ReactNode } from "react";
+"use client";
+
+import { useState, type ReactNode } from "react";
 
 // กล่องหัวข้อของกลุ่มตัวเลือก
 export function OptionBlock({ title, hint, children }: { title: string; hint?: string; children: ReactNode }) {
@@ -73,18 +75,73 @@ export function Chips({ items, value, onChange }: { items: ChipItem[]; value: st
   );
 }
 
-// ปุ่มเม็ดยาแบบเปิด/ปิดได้หลายอัน (เครื่องประดับ)
-export function ToggleChips({ items, values, onToggle }: { items: ChipItem[]; values: string[]; onToggle: (id: string) => void }) {
+type AccessoryItem = { id: string; category: string; name: string; emoji?: string };
+type AccessoryCategoryItem = { id: string; name: string; emoji?: string };
+
+// ตัวเลือกเครื่องประดับแบบแท็บหมวดหมู่: เลือกได้หมวดละ 1 อย่าง ใส่ข้ามหมวดพร้อมกันได้
+// แท็บของหมวดที่ใส่ของอยู่จะมีจุดสีบอกไว้
+export function AccessoryPicker({
+  categories,
+  items,
+  values,
+  onChange,
+  noneLabel,
+}: {
+  categories: AccessoryCategoryItem[];
+  items: AccessoryItem[];
+  values: string[];
+  onChange: (ids: string[]) => void;
+  noneLabel: string;
+}) {
+  const [active, setActive] = useState(categories[0]?.id ?? "");
+  const selectedIn = (categoryId: string) => items.find((item) => item.category === categoryId && values.includes(item.id));
+  const current = selectedIn(active);
+
+  const choose = (id: string | null) => {
+    const others = values.filter((value) => items.find((item) => item.id === value)?.category !== active);
+    onChange(id ? [...others, id] : others);
+  };
+
   return (
-    <div className="chips" role="group">
-      {items.map((item) => {
-        const on = values.includes(item.id);
-        return (
-          <button key={item.id} type="button" className={`chip ${on ? "active" : ""}`} onClick={() => onToggle(item.id)} aria-pressed={on}>
-            <ChipContent item={item} />
-          </button>
-        );
-      })}
+    <div className="accessory-picker">
+      <div className="category-tabs" role="tablist">
+        {categories.map((category) => {
+          const worn = selectedIn(category.id);
+          return (
+            <button
+              key={category.id}
+              type="button"
+              role="tab"
+              aria-selected={active === category.id}
+              className={`category-tab ${active === category.id ? "active" : ""}`}
+              onClick={() => setActive(category.id)}
+            >
+              {category.emoji && <span aria-hidden="true">{category.emoji}</span>}
+              {category.name}
+              {worn && <i className="tab-dot" aria-label={worn.name} />}
+            </button>
+          );
+        })}
+      </div>
+      <div className="chips" role="radiogroup">
+        <button type="button" role="radio" className={`chip ${current ? "" : "active"}`} onClick={() => choose(null)} aria-checked={!current}>
+          {noneLabel}
+        </button>
+        {items
+          .filter((item) => item.category === active)
+          .map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              role="radio"
+              className={`chip ${current?.id === item.id ? "active" : ""}`}
+              onClick={() => choose(item.id)}
+              aria-checked={current?.id === item.id}
+            >
+              <ChipContent item={item} />
+            </button>
+          ))}
+      </div>
     </div>
   );
 }

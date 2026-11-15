@@ -292,21 +292,81 @@ export const outfits: Outfit[] = [
 ];
 
 // =====================================================================
-//  เครื่องประดับตัวละคร (เลือกได้หลายอัน)
-//  วาดทับตัวละครตามลำดับใน array นี้ อันหลังสุดจะอยู่บนสุด
+//  เครื่องประดับตัวละคร แยกเป็นหมวด เลือกได้หมวดละ 1 อย่าง ใส่ข้ามหมวดพร้อมกันได้
+//
+//  girlAccessoryCategories = หมวดและลำดับแท็บที่แสดงในหน้าเกม
+//  girlAccessories = ของแต่ละชิ้น ลำดับใน array คือลำดับการวาดทับ (อันหลังอยู่บนสุด)
 //  ตัวอักษรใน rows ใช้สีจาก palette ของเครื่องประดับชิ้นนั้น
+//
+//  เพิ่มของใหม่: เพิ่ม object ใน girlAccessories แล้วใส่ category ให้ตรงกับ id ของหมวด
 // =====================================================================
+export type AccessoryCategory = { id: string; name: string; emoji: string };
+
 export type GirlAccessory = {
   id: string;
+  category: string;
   name: string;
   emoji: string;
   palette: Record<string, string>;
   rows: string[];
 };
 
+export const girlAccessoryCategories: AccessoryCategory[] = [
+  { id: "head", name: "หมวก", emoji: "👒" },
+  { id: "face", name: "ใบหน้า", emoji: "👓" },
+  { id: "hair", name: "ติดผม", emoji: "🎀" },
+  { id: "neck", name: "คอ", emoji: "🧣" },
+  { id: "hand", name: "ในมือ", emoji: "🧋" },
+];
+
 export const girlAccessories: GirlAccessory[] = [
+  // ---------- คอ ----------
+  {
+    id: "scarf",
+    category: "neck",
+    name: "ผ้าพันคอ",
+    emoji: "🧣",
+    palette: { a: "#EF6A5B", A: "#C94B40" },
+    rows: [
+      ...blank(19),
+      "........aaaaaaaa........",
+      ".......aAaaAaaAaa.......",
+      ".............aaA........",
+      ".............aAa........",
+      ".............aaA........",
+      ".............A.A........",
+    ],
+  },
+  {
+    id: "necklace",
+    category: "neck",
+    name: "สร้อยหัวใจ",
+    emoji: "💗",
+    palette: { y: "#F2C14E", p: "#F45C8E" },
+    rows: [
+      ...blank(20),
+      ".........y....y.........",
+      "..........y..y..........",
+      "...........pp...........",
+    ],
+  },
+  {
+    id: "bowtie",
+    category: "neck",
+    name: "โบว์ผูกคอ",
+    emoji: "🎗️",
+    palette: { p: "#8B5CF6", P: "#6A3FD0", k: "#5632B0" },
+    rows: [
+      ...blank(20),
+      ".........ppkkpp.........",
+      ".........pP..Pp.........",
+    ],
+  },
+
+  // ---------- ใบหน้า ----------
   {
     id: "glasses",
+    category: "face",
     name: "แว่นกลม",
     emoji: "👓",
     palette: { g: "#7A4FB0" },
@@ -320,7 +380,36 @@ export const girlAccessories: GirlAccessory[] = [
     ],
   },
   {
+    id: "sunglasses",
+    category: "face",
+    name: "แว่นกันแดด",
+    emoji: "🕶️",
+    palette: { k: "#3A2733", L: "#9C8DB5" },
+    rows: [
+      ...blank(11),
+      "......kLkk....kLkk......",
+      "......kkkkkkkkkkkk......",
+      ".......kk......kk.......",
+    ],
+  },
+  {
+    id: "star-sticker",
+    category: "face",
+    name: "สติกเกอร์ดาว",
+    emoji: "⭐",
+    palette: { y: "#FFD23F" },
+    rows: [
+      ...blank(14),
+      "................y.......",
+      "...............yyy......",
+      "................y.......",
+    ],
+  },
+
+  // ---------- หมวก ----------
+  {
     id: "hat",
+    category: "head",
     name: "หมวกสาน",
     emoji: "👒",
     palette: { a: "#FFE3A3", A: "#E6BC66", i: "#FFF4D2", b: "#F26A9E", B: "#C9457C" },
@@ -336,7 +425,71 @@ export const girlAccessories: GirlAccessory[] = [
     ],
   },
   {
+    id: "beanie",
+    category: "head",
+    name: "หมวกไหมพรม",
+    emoji: "🧶",
+    palette: { a: "#F47C9C", A: "#CF5A7D", i: "#FBB1C4", b: "#FFF4E6", B: "#E8D5C4" },
+    rows: [
+      EMPTY,
+      "..........bbbb..........",
+      ".........bbbbbB.........",
+      ".......aaaaaaaaaa.......",
+      ".....aaaaaaaaaaaaaA.....",
+      "....aaiaaaaaaaaaaaAA....",
+      "...aaiaaaaaaaaaaaaaAA...",
+      "...aaaaaaaaaaaaaaaaAA...",
+      "..bbBbbBbbBbbBbbBbbBbb..",
+      "..bbBbbBbbBbbBbbBbbBBB..",
+    ],
+  },
+  {
+    id: "flower-crown",
+    category: "head",
+    name: "มงกุฎดอกไม้",
+    emoji: "🌼",
+    palette: { p: "#FF8FB8", w: "#FFFFFF", y: "#FFD86B", g: "#7CC47F" },
+    rows: [
+      ...blank(6),
+      "....ppgwwgyyyygwwgpp....",
+      "...gppgwwgyyyygwwgppg...",
+    ],
+  },
+  {
+    id: "cat-ears",
+    category: "head",
+    name: "ที่คาดผมหูแมว",
+    emoji: "🐱",
+    palette: { k: "#4A3F55", i: "#F9A8C4" },
+    rows: [
+      EMPTY,
+      "......k..........k......",
+      ".....kik........kik.....",
+      ".....kiik......kiik.....",
+      ".....kkkk......kkkk.....",
+    ],
+  },
+  {
+    id: "beret",
+    category: "head",
+    name: "เบเร่ต์",
+    emoji: "🎨",
+    palette: { a: "#E5484D", A: "#B8323A", i: "#F4838A" },
+    rows: [
+      EMPTY,
+      "............a...........",
+      "........aaaaaaaaa.......",
+      "......aaiaaaaaaaaaA.....",
+      ".....aaiaaaaaaaaaaaAA...",
+      ".....aaaaaaaaaaaaaaAA...",
+      "......AAAAAAAAAAAAAA....",
+    ],
+  },
+
+  // ---------- ติดผม ----------
+  {
     id: "clip",
+    category: "hair",
     name: "กิ๊บดอกไม้",
     emoji: "🌸",
     palette: { p: "#FF8FB8", y: "#FFE066" },
@@ -346,6 +499,85 @@ export const girlAccessories: GirlAccessory[] = [
       "................pppp....",
       "................pyyp....",
       ".................pp.....",
+    ],
+  },
+  {
+    id: "hair-bow",
+    category: "hair",
+    name: "โบว์ติดผม",
+    emoji: "🎀",
+    palette: { p: "#F45C8E", P: "#C93F72", k: "#A82E5C" },
+    rows: [
+      ...blank(4),
+      "..............pp...pp...",
+      "..............pppkppp...",
+      "..............pP...Pp...",
+    ],
+  },
+  {
+    id: "star-clips",
+    category: "hair",
+    name: "กิ๊บดาว",
+    emoji: "✨",
+    palette: { y: "#FFD23F" },
+    rows: [
+      ...blank(7),
+      "......y.................",
+      ".....yyy................",
+      "......y.................",
+    ],
+  },
+
+  // ---------- ในมือ ----------
+  {
+    id: "tulip",
+    category: "hand",
+    name: "ดอกทิวลิป",
+    emoji: "🌷",
+    palette: { p: "#FF7FA8", P: "#D9557E", g: "#6DBE72" },
+    rows: [
+      ...blank(19),
+      ".................p.p....",
+      ".................ppp....",
+      ".................pPp....",
+      "..................g.....",
+      "..................gg....",
+      "..................g.....",
+      "..................g.....",
+    ],
+  },
+  {
+    id: "bubble-tea",
+    category: "hand",
+    name: "ชานมไข่มุก",
+    emoji: "🧋",
+    palette: { w: "#FFFFFF", t: "#D9A066", b: "#5A3A2E", k: "#F45C8E" },
+    rows: [
+      ...blank(20),
+      "....k...................",
+      "....k...................",
+      "..wwww..................",
+      "..tttt..................",
+      "..tttt..................",
+      "..tbtb..................",
+      "...tt...................",
+    ],
+  },
+  {
+    id: "ice-cream",
+    category: "hand",
+    name: "ไอศกรีม",
+    emoji: "🍦",
+    palette: { p: "#FFB3CF", P: "#F58FB4", c: "#E8B26A", C: "#C98F45" },
+    rows: [
+      ...blank(19),
+      "..................pp....",
+      ".................pppp...",
+      ".................ppPP...",
+      ".................cCcC...",
+      "..................cC....",
+      "..................cC....",
+      "..................c.....",
     ],
   },
 ];

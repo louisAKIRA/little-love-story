@@ -6,9 +6,9 @@ import PixelGirl from "@/components/PixelGirl";
 import PixelPet, { type PetHandle } from "@/components/PixelPet";
 import Meadow from "@/components/Meadow";
 import SecretLetter from "@/components/SecretLetter";
-import { OptionBlock, Swatches, Chips, ToggleChips } from "@/components/Controls";
-import { skinTones, hairStyles, hairColors, outfits, girlAccessories } from "@/config/character";
-import { petKinds, coats, petAccessories, type PetKind } from "@/config/pets";
+import { OptionBlock, Swatches, Chips, AccessoryPicker } from "@/components/Controls";
+import { skinTones, hairStyles, hairColors, outfits, girlAccessories, girlAccessoryCategories } from "@/config/character";
+import { petKinds, coats, petAccessories, petAccessoryCategories, type PetKind } from "@/config/pets";
 import {
   encouragements,
   copy,
@@ -32,15 +32,22 @@ import { saveState, type SavedState } from "@/lib/storage";
 type Step = 0 | 1 | 2;
 
 const pick = <T,>(list: readonly T[]): T => list[Math.floor(Math.random() * list.length)];
-const toggleId = (list: string[], id: string) => (list.includes(id) ? list.filter((item) => item !== id) : [...list, id]);
-const randomSubset = <T extends { id: string }>(list: readonly T[], chance: number) =>
-  list.filter(() => Math.random() < chance).map((item) => item.id);
+// สุ่มเครื่องประดับ: แต่ละหมวดมีโอกาสได้ของ 1 ชิ้น
+const randomPerCategory = <T extends { id: string; category: string }>(list: readonly T[], chance: number) => {
+  const categories = [...new Set(list.map((item) => item.category))];
+  return categories.flatMap((category) => (Math.random() < chance ? [pick(list.filter((item) => item.category === category)).id] : []));
+};
 
 // ใช้ค่าที่จำไว้เฉพาะเมื่อยังมีอยู่ใน config (เผื่อแก้ config แล้วลบตัวเลือกไป)
 const validId = <T extends { id: string }>(list: readonly T[], id: unknown, fallback: string) =>
   typeof id === "string" && list.some((item) => item.id === id) ? id : fallback;
-const validIds = <T extends { id: string }>(list: readonly T[], ids: unknown) =>
-  Array.isArray(ids) ? list.filter((item) => ids.includes(item.id)).map((item) => item.id) : [];
+const validIds = <T extends { id: string; category: string }>(list: readonly T[], ids: unknown) => {
+  if (!Array.isArray(ids)) return [];
+  const seen = new Set<string>();
+  return list
+    .filter((item) => ids.includes(item.id) && !seen.has(item.category) && Boolean(seen.add(item.category)))
+    .map((item) => item.id);
+};
 const toCount = (value: unknown) => (typeof value === "number" && Number.isFinite(value) && value > 0 ? Math.floor(value) : 0);
 const fillNumbers = (text: string, values: Record<string, number>) =>
   Object.entries(values).reduce((result, [key, value]) => result.replaceAll(`{${key}}`, String(value)), text);
@@ -180,13 +187,13 @@ export default function Game({ saved, persist }: Props) {
     setHairStyleId(pick(hairStyles).id);
     setHairColorId(pick(hairColors).id);
     setOutfitId(pick(outfits).id);
-    setGirlAccessoryIds(randomSubset(girlAccessories, 0.35));
+    setGirlAccessoryIds(randomPerCategory(girlAccessories, 0.4));
   };
 
   const randomizePet = () => {
     setPetKind(pick(petKinds).id);
     setCoatId(pick(coats).id);
-    setPetAccessoryIds(randomSubset(petAccessories, 0.4));
+    setPetAccessoryIds(randomPerCategory(petAccessories, 0.5));
   };
 
   const chooseMood = (id: string) => {
@@ -347,7 +354,13 @@ export default function Game({ saved, persist }: Props) {
             </OptionBlock>
 
             <OptionBlock title={copy.options.accessories} hint={copy.options.accessoriesHint}>
-              <ToggleChips items={girlAccessories} values={girlAccessoryIds} onToggle={(id) => setGirlAccessoryIds((list) => toggleId(list, id))} />
+              <AccessoryPicker
+                categories={girlAccessoryCategories}
+                items={girlAccessories}
+                values={girlAccessoryIds}
+                onChange={setGirlAccessoryIds}
+                noneLabel={copy.options.accessoryNone}
+              />
             </OptionBlock>
 
             <div className="actions">
@@ -400,7 +413,13 @@ export default function Game({ saved, persist }: Props) {
             </OptionBlock>
 
             <OptionBlock title={copy.options.petAccessories} hint={copy.options.accessoriesHint}>
-              <ToggleChips items={petAccessories} values={petAccessoryIds} onToggle={(id) => setPetAccessoryIds((list) => toggleId(list, id))} />
+              <AccessoryPicker
+                categories={petAccessoryCategories}
+                items={petAccessories}
+                values={petAccessoryIds}
+                onChange={setPetAccessoryIds}
+                noneLabel={copy.options.accessoryNone}
+              />
             </OptionBlock>
 
             <div className="actions">

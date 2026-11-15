@@ -87,33 +87,91 @@ export const petSprites: Record<PetKind, string[]> = {
 };
 
 // =====================================================================
-//  เครื่องประดับน้อง (เลือกได้หลายอัน)
-//  หมากับแมวหัวไม่เท่ากัน เลยแยก rows ของแต่ละตัว
+//  เครื่องประดับน้อง แยกเป็นหมวด เลือกได้หมวดละ 1 อย่าง ใส่ข้ามหมวดพร้อมกันได้
+//
+//  petAccessoryCategories = หมวดและลำดับแท็บที่แสดงในหน้าเกม
+//  petAccessories = ของแต่ละชิ้น ลำดับใน array คือลำดับการวาดทับ (อันหลังอยู่บนสุด)
+//  หมากับแมวหัวไม่เท่ากัน เลยแยก rows ของแต่ละตัว (ชิ้นไหนใช้ร่วมกันได้ก็ใส่ชุดเดียวกัน)
 // =====================================================================
+export type PetAccessoryCategory = { id: string; name: string; emoji: string };
+
 export type PetAccessory = {
   id: string;
+  category: string;
   name: string;
   emoji: string;
   palette: Record<string, string>;
   rows: Record<PetKind, string[]>;
 };
 
-const collarRows = [
-  ...blank(13),
-  ".......rrrryyrrrr.......",
-  "...........yY...........",
+export const petAccessoryCategories: PetAccessoryCategory[] = [
+  { id: "head", name: "บนหัว", emoji: "🎀" },
+  { id: "face", name: "ใบหน้า", emoji: "🕶️" },
+  { id: "neck", name: "คอ", emoji: "🔔" },
 ];
 
+const both = (rows: string[]): Record<PetKind, string[]> => ({ cat: rows, dog: rows });
+
 export const petAccessories: PetAccessory[] = [
+  // ---------- คอ ----------
   {
     id: "collar",
+    category: "neck",
     name: "ปลอกคอกระดิ่ง",
     emoji: "🔔",
     palette: { r: "#8B5CF6", y: "#FFD15C", Y: "#E0A52E" },
-    rows: { cat: collarRows, dog: collarRows },
+    rows: both([
+      ...blank(13),
+      ".......rrrryyrrrr.......",
+      "...........yY...........",
+    ]),
   },
   {
+    id: "bandana",
+    category: "neck",
+    name: "ผ้าพันคอ",
+    emoji: "🧣",
+    palette: { a: "#EF6A5B", w: "#FFFFFF" },
+    rows: both([
+      ...blank(13),
+      ".......aaaaaaaaaa.......",
+      ".........awaawa.........",
+      "..........aaaa..........",
+      "...........aa...........",
+    ]),
+  },
+  {
+    id: "bowtie",
+    category: "neck",
+    name: "โบว์หูกระต่าย",
+    emoji: "🎗️",
+    palette: { p: "#5B8DEF", P: "#3E6BC4", k: "#2F55A3" },
+    rows: both([
+      ...blank(13),
+      ".........ppkkpp.........",
+      ".........pP..Pp.........",
+    ]),
+  },
+
+  // ---------- ใบหน้า ----------
+  {
+    id: "sunglasses",
+    category: "face",
+    name: "แว่นกันแดด",
+    emoji: "🕶️",
+    palette: { k: "#3A2733", L: "#9C8DB5" },
+    rows: both([
+      ...blank(7),
+      "......kLkk....kLkk......",
+      "......kkkkkkkkkkkk......",
+      ".......kk......kk.......",
+    ]),
+  },
+
+  // ---------- บนหัว ----------
+  {
     id: "bow",
+    category: "head",
     name: "โบว์",
     emoji: "🎀",
     palette: { p: "#F45C8E", P: "#C93F72", k: "#A82E5C" },
@@ -129,6 +187,54 @@ export const petAccessories: PetAccessory[] = [
         "............pp...pp.....",
         "............pppkppp.....",
         "............pP...Pp.....",
+      ],
+    },
+  },
+  {
+    id: "party-hat",
+    category: "head",
+    name: "หมวกปาร์ตี้",
+    emoji: "🥳",
+    palette: { a: "#8B5CF6", b: "#FFD15C", y: "#FF8FB8", w: "#FFFFFF" },
+    rows: both([
+      EMPTY,
+      "...........yy...........",
+      "..........abab..........",
+      ".........bababa.........",
+      "........wwwwwwww........",
+    ]),
+  },
+  {
+    id: "crown",
+    category: "head",
+    name: "มงกุฎ",
+    emoji: "👑",
+    palette: { y: "#FFD15C", r: "#EF4F80" },
+    rows: both([
+      ...blank(2),
+      ".........y.yy.y.........",
+      ".........yyyyyy.........",
+      ".........yryyry.........",
+    ]),
+  },
+  {
+    id: "flower",
+    category: "head",
+    name: "ดอกไม้ทัดหู",
+    emoji: "🌸",
+    palette: { p: "#FF8FB8", y: "#FFE066" },
+    rows: {
+      cat: [
+        ...blank(3),
+        "......p.................",
+        ".....pyp................",
+        "......p.................",
+      ],
+      dog: [
+        ...blank(4),
+        ".....p..................",
+        "....pyp.................",
+        ".....p..................",
       ],
     },
   },
