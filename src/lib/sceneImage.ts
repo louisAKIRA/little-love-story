@@ -1,4 +1,4 @@
-import { compositeLayers, girlLayers, petLayers, type GirlLook, type PetLook, type SpriteLayer } from "@/lib/sprites";
+import { girlLayers, petLayers, renderSprite, type GirlLook, type PetLook, type SpriteLayer } from "@/lib/sprites";
 import { FLOWERS, STARS } from "@/lib/scene";
 import { GIRL_WIDTH, GIRL_HEIGHT } from "@/config/character";
 import { PET_WIDTH, PET_HEIGHT } from "@/config/pets";
@@ -40,7 +40,7 @@ function roundRectPath(ctx: Ctx, x: number, y: number, w: number, h: number, r: 
 }
 
 function drawSprite(ctx: Ctx, layers: SpriteLayer[], width: number, height: number, x: number, y: number, scale: number) {
-  for (const p of compositeLayers(layers, width, height)) {
+  for (const p of renderSprite(layers, width, height)) {
     ctx.fillStyle = p.fill;
     ctx.fillRect(Math.round(x + p.x * scale), Math.round(y + p.y * scale), scale, scale);
   }
@@ -280,7 +280,7 @@ export async function renderSceneImage(o: SceneImageOptions): Promise<Blob> {
   drawFlowerRow(ctx, MB - 190, 46, 2, "#FFF4FB", 0.85, font(400));
 
   // ตัวหวานกับน้องยืนบนพื้นเดียวกัน
-  const scale = 20;
+  const scale = 16;
   const baseline = MB - 140;
   const girlW = GIRL_WIDTH * scale;
   const girlH = GIRL_HEIGHT * scale;
@@ -301,8 +301,8 @@ export async function renderSceneImage(o: SceneImageOptions): Promise<Blob> {
   drawSprite(ctx, petLayers(o.pet), PET_WIDTH, PET_HEIGHT, petX, baseline - petH, scale);
 
   const tagFont = font(800)(34);
-  if (o.girlName) drawNameTag(ctx, `♡ ${o.girlName}`, girlX + girlW / 2, baseline - girlH - 48, tagFont);
-  drawNameTag(ctx, `♡ ${o.petName}`, petX + petW / 2, baseline - petH - 40, tagFont);
+  if (o.girlName) drawNameTag(ctx, `♡ ${o.girlName}`, girlX + girlW / 2, baseline - girlH - 24, tagFont);
+  drawNameTag(ctx, `♡ ${o.petName}`, petX + petW / 2, baseline - petH - 30, tagFont);
 
   drawFlowerRow(ctx, MB - 70, 64, 1, "#FFE6F1", 1, font(400));
   ctx.restore();

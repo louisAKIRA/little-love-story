@@ -27,7 +27,7 @@ type Motion = { key: number; kind: "jump" | "eat" };
 
 const TREAT_FALL_MS = 650;
 
-export default function PixelPet({ look, name, lines = [], onTap, greeting = null, treatEmoji = "🍪", scale = 7, ref }: Props) {
+export default function PixelPet({ look, name, lines = [], onTap, greeting = null, treatEmoji = "🍪", scale = 5, ref }: Props) {
   const [motion, setMotion] = useState<Motion | null>(null);
   const [speech, setSpeech] = useState<string | null>(greeting);
   const [bursts, setBursts] = useState<Burst[]>([]);
@@ -118,7 +118,7 @@ export default function PixelPet({ look, name, lines = [], onTap, greeting = nul
       <div className="sprite-shadow" />
       <button type="button" className="pet-button" onClick={handleTap} aria-label={`จิ้ม${name ?? "น้อง"}`}>
         <span key={motion?.key ?? 0} className={motion ? `pet-${motion.kind}` : "pet-still"}>
-          <PixelSprite layers={petLayers(look)} width={PET_WIDTH} height={PET_HEIGHT} scale={scale} label={label} />
+          <PixelSprite layers={petLayers(look)} width={PET_WIDTH} height={PET_HEIGHT} scale={scale} label={label} outline />
         </span>
       </button>
       {treats.map((id) => (

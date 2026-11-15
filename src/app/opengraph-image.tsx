@@ -1,5 +1,5 @@
 import { ImageResponse } from "next/og";
-import { compositeLayers, girlLayers, petLayers, type SpriteLayer } from "@/lib/sprites";
+import { compositeLayers, girlLayers, petLayers, renderSprite, type SpriteLayer } from "@/lib/sprites";
 import { GIRL_WIDTH, GIRL_HEIGHT, skinTones, hairStyles, hairColors, outfits } from "@/config/character";
 import { PET_WIDTH, PET_HEIGHT, coats, petAccessories } from "@/config/pets";
 import { copy } from "@/config/messages";
@@ -31,10 +31,10 @@ async function loadThaiFont(weight: number, text: string): Promise<ArrayBuffer |
   }
 }
 
-function Pixels({ layers, width, height, scale, left, top }: { layers: SpriteLayer[]; width: number; height: number; scale: number; left: number; top: number }) {
+function Pixels({ layers, width, height, scale, left, top, outline = false }: { layers: SpriteLayer[]; width: number; height: number; scale: number; left: number; top: number; outline?: boolean }) {
   return (
     <div style={{ position: "absolute", left, top, width: width * scale, height: height * scale, display: "flex" }}>
-      {compositeLayers(layers, width, height).map((p) => (
+      {(outline ? renderSprite(layers, width, height) : compositeLayers(layers, width, height)).map((p) => (
         <div
           key={`${p.x}-${p.y}`}
           style={{ position: "absolute", left: p.x * scale, top: p.y * scale, width: scale, height: scale, backgroundColor: p.fill }}
@@ -65,7 +65,7 @@ export default async function OpengraphImage() {
   const pet = petLayers({ kind: "cat", coat: coats[0], accessories: petAccessories.filter((item) => item.id === "bow") });
 
   const box = 504; // ด้านในกรอบฉาก
-  const scale = 12;
+  const scale = 9;
   const baseline = box - 74;
   const girlW = GIRL_WIDTH * scale;
   const petW = PET_WIDTH * scale;
@@ -102,8 +102,8 @@ export default async function OpengraphImage() {
           <div style={{ position: "absolute", top: 136, right: 70, width: 84, height: 24, borderRadius: 999, backgroundColor: "#FFF9FC" }} />
           <div style={{ position: "absolute", left: -90, bottom: -250, width: 690, height: 420, borderRadius: 999, backgroundColor: "#A9D99E" }} />
           <div style={{ position: "absolute", left: -40, bottom: -300, width: 690, height: 400, borderRadius: 999, backgroundColor: "#83C78E" }} />
-          <Pixels layers={girl} width={GIRL_WIDTH} height={GIRL_HEIGHT} scale={scale} left={startX} top={baseline - GIRL_HEIGHT * scale} />
-          <Pixels layers={pet} width={PET_WIDTH} height={PET_HEIGHT} scale={scale} left={startX + girlW + 24} top={baseline - PET_HEIGHT * scale} />
+          <Pixels layers={girl} width={GIRL_WIDTH} height={GIRL_HEIGHT} scale={scale} left={startX} top={baseline - GIRL_HEIGHT * scale} outline />
+          <Pixels layers={pet} width={PET_WIDTH} height={PET_HEIGHT} scale={scale} left={startX + girlW + 24} top={baseline - PET_HEIGHT * scale} outline />
           {[0, 1, 2, 3, 4, 5, 6, 7].map((index) => (
             <Pixels
               key={index}

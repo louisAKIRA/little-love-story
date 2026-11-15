@@ -8,12 +8,12 @@ type Props = {
   name?: string;
 };
 
-export default function PixelGirl({ look, scale = 7, name }: Props) {
+export default function PixelGirl({ look, scale = 5, name }: Props) {
   return (
     <div className="sprite-wrap sprite-girl">
       {name && <div className="name-tag">♡ {name}</div>}
       <div className="sprite-shadow" />
-      <PixelSprite layers={girlLayers(look)} width={GIRL_WIDTH} height={GIRL_HEIGHT} scale={scale} label="ตัวละครพิกเซล" />
+      <PixelSprite layers={girlLayers(look)} width={GIRL_WIDTH} height={GIRL_HEIGHT} scale={scale} label="ตัวละครพิกเซล" outline />
     </div>
   );
 }
