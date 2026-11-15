@@ -3,6 +3,7 @@
 import { useEffect, useImperativeHandle, useRef, useState, type CSSProperties, type Ref } from "react";
 import PixelSprite from "@/components/PixelSprite";
 import { petLayers, type PetLook } from "@/lib/sprites";
+import { useBlink, useToggle } from "@/lib/animation";
 import { PET_WIDTH, PET_HEIGHT } from "@/config/pets";
 
 // ให้หน้าเกมสั่งโยนขนมได้: ส่งคำพูดตอนกินมาด้วย
@@ -32,6 +33,10 @@ export default function PixelPet({ look, name, lines = [], onTap, greeting = nul
   const [speech, setSpeech] = useState<string | null>(greeting);
   const [bursts, setBursts] = useState<Burst[]>([]);
   const [treats, setTreats] = useState<number[]>([]);
+  const [chewing, setChewing] = useState(false);
+  const blink = useBlink();
+  // หมากระดิกหางเร็ว แมวแกว่งหางช้า ๆ
+  const tail = useToggle(look.kind === "dog" ? 320 : 1100);
   const lastLine = useRef(-1);
   const nextId = useRef(0);
   const speechTimer = useRef<number | undefined>(undefined);
@@ -98,6 +103,9 @@ export default function PixelPet({ look, name, lines = [], onTap, greeting = nul
     later(() => {
       setTreats((current) => current.filter((item) => item !== id));
       move("eat");
+      // หลับตาพริ้มตอนเคี้ยว
+      setChewing(true);
+      later(() => setChewing(false), 700);
       if (line) say(line, 3200);
       burst(7);
     }, TREAT_FALL_MS);
@@ -118,7 +126,7 @@ export default function PixelPet({ look, name, lines = [], onTap, greeting = nul
       <div className="sprite-shadow" />
       <button type="button" className="pet-button" onClick={handleTap} aria-label={`จิ้ม${name ?? "น้อง"}`}>
         <span key={motion?.key ?? 0} className={motion ? `pet-${motion.kind}` : "pet-still"}>
-          <PixelSprite layers={petLayers(look)} width={PET_WIDTH} height={PET_HEIGHT} scale={scale} label={label} outline />
+          <PixelSprite layers={petLayers(look, { blink: blink || chewing, tail })} width={PET_WIDTH} height={PET_HEIGHT} scale={scale} label={label} outline />
         </span>
       </button>
       {treats.map((id) => (

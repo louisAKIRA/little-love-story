@@ -77,6 +77,12 @@ export const bodyRows: string[] = [
   EMPTY,
 ];
 
+// เฟรมกะพริบตา: แถวที่ระบุจะถูกแทนที่ชั่วครู่ตอนตัวละครหลับตา (เลขคือลำดับแถว เริ่มนับจาก 0)
+export const bodyBlinkRows: Record<number, string> = {
+  11: "....ssssssssssssssss....",
+  13: "....ssssssssssssssss....",
+};
+
 // ส่วนบนของหัวที่หลายทรงใช้ร่วมกัน (แถว 3-10: กระหม่อม + หน้าม้า)
 // แสงมาจากซ้ายบน: ประกาย i อยู่ซ้ายบน เงา H อยู่ขวาและขอบล่าง
 const capRows = [

@@ -219,6 +219,7 @@ export const copy = {
     accessories: "เครื่องประดับ",
     accessoriesHint: "เลือกได้หมวดละ 1 อย่าง",
     accessoryNone: "ไม่ใส่",
+    scene: "ฉากหลัง",
     petKind: "เพื่อนสี่ขา",
     petCoat: "สีขน",
     petName: "ชื่อน้อง",

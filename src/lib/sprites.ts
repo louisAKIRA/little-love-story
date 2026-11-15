@@ -1,6 +1,6 @@
 import { mix } from "@/lib/color";
-import { bodyRows, type GirlAccessory, type HairStyle, type Outfit } from "@/config/character";
-import { petSprites, type Coat, type PetAccessory, type PetKind } from "@/config/pets";
+import { bodyBlinkRows, bodyRows, type GirlAccessory, type HairStyle, type Outfit } from "@/config/character";
+import { petBlinkRows, petSprites, petTailRows, type Coat, type PetAccessory, type PetKind } from "@/config/pets";
 
 // เลเยอร์ของ sprite: ตารางตัวอักษร + สีของแต่ละตัวอักษร
 export type SpriteLayer = {
@@ -55,6 +55,16 @@ export function renderSprite(layers: SpriteLayer[], width: number, height: numbe
   return [...outline, ...pixels];
 }
 
+// แทนที่บางแถวของ sprite ด้วยแถวของเฟรมขยับ (หลับตา กระดิกหาง)
+function withRows(rows: string[], ...overrides: (Record<number, string> | false | undefined)[]): string[] {
+  const active = overrides.filter(Boolean) as Record<number, string>[];
+  if (active.length === 0) return rows;
+  return rows.map((row, index) => active.reduce<string>((result, override) => override[index] ?? result, row));
+}
+
+export type GirlFrame = { blink?: boolean };
+export type PetFrame = { blink?: boolean; tail?: boolean };
+
 export type GirlLook = {
   skin: string;
   hairStyle: HairStyle;
@@ -65,7 +75,7 @@ export type GirlLook = {
 
 // ลำดับเลเยอร์: ผมด้านหลัง → ตัว → ชุด → ผมด้านหน้า → เครื่องประดับ
 // ตัวพิมพ์ใหญ่ = เฉดเงาของสีเดียวกัน (คำนวณให้เองจากสีที่เลือก)
-export function girlLayers(look: GirlLook): SpriteLayer[] {
+export function girlLayers(look: GirlLook, frame: GirlFrame = {}): SpriteLayer[] {
   const hairPalette = {
     h: look.hairColor,
     H: mix(look.hairColor, SHADE, 0.3),
@@ -78,7 +88,7 @@ export function girlLayers(look: GirlLook): SpriteLayer[] {
   return [
     ...(look.hairStyle.back ? [{ rows: look.hairStyle.back, palette: hairPalette }] : []),
     {
-      rows: bodyRows,
+      rows: withRows(bodyRows, frame.blink && bodyBlinkRows),
       palette: {
         s: look.skin,
         S: mix(look.skin, "#8A3550", 0.24),
@@ -106,11 +116,11 @@ export type PetLook = {
   accessories: PetAccessory[];
 };
 
-export function petLayers(look: PetLook): SpriteLayer[] {
+export function petLayers(look: PetLook, frame: PetFrame = {}): SpriteLayer[] {
   const { color, detail } = look.coat;
   return [
     {
-      rows: petSprites[look.kind],
+      rows: withRows(petSprites[look.kind], frame.tail && petTailRows[look.kind], frame.blink && petBlinkRows[look.kind]),
       palette: {
         f: color,
         F: mix(color, detail, 0.7),

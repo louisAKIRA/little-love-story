@@ -17,6 +17,7 @@ export type SavedState = {
   coat?: string;
   petAccessories?: string[];
   petName?: string;
+  scene?: string;
   completed?: boolean;
   tapCount?: number;
   visitDays?: number;

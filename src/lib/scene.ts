@@ -7,3 +7,8 @@ export const STARS: [number, number][] = [
   [8, 10], [21, 5], [33, 17], [47, 8], [58, 21], [70, 6],
   [86, 31], [14, 26], [40, 29], [64, 33], [27, 37], [92, 14],
 ];
+
+// ของตกแต่งของฉากอื่น ๆ
+export const BEACH_DECOR = ["★", "✿", "★", "●", "★", "✿", "●", "★"];
+export const CUP_COLORS = ["#F7A8C8", "#B8E1C9", "#C9B2F2", "#FFD77A"];
+export const LIGHT_COLORS = ["#F7A8C8", "#FFD77A", "#B8E1C9", "#C9B2F2", "#8FD0F0"];

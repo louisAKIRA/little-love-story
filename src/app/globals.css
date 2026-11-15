@@ -48,7 +48,9 @@ h1, h2, h3 { font-weight: 800; }
 .meadow-compact { height: 296px; }
 .sun { position: absolute; top: 22px; right: 36px; color: #FFD77A; font-size: 37px; animation: sun-pulse 3s ease-in-out infinite; }
 @keyframes sun-pulse { 50% { transform: rotate(20deg) scale(1.08); } }
-.meadow.night { background: linear-gradient(#1C2654 0%, #2E3B73 55%, #3D5A6B 100%); }
+/* ท้องฟ้าของทุ่งดอกไม้: ช่วงหิมะฟ้าจะเข้มขึ้นให้เห็นเกล็ดหิมะ ส่วนกลางคืนเป็นสีกรมท่า (ฉากอื่นมีสีของตัวเอง) */
+.scene-meadow.snowy { background: linear-gradient(#B9DDF0 0%, #DCEEF6 70%, #F4F8FB 100%); }
+.scene-meadow.night { background: linear-gradient(#1C2654 0%, #2E3B73 55%, #3D5A6B 100%); }
 .meadow.night .cloud { opacity: .25; }
 .meadow.night .hill-back { background: #557F66; }
 .meadow.night .hill-front { background: #3F6B52; }
@@ -64,6 +66,11 @@ h1, h2, h3 { font-weight: 800; }
 .cloud-two { top: 78px; right: 15%; transform: scale(.7); animation: cloud-drift 10s ease-in-out infinite alternate-reverse; }
 @keyframes cloud-drift { to { translate: 12px 0; } }
 .hill { position: absolute; width: 130%; left: -15%; border-radius: 50% 50% 0 0; }
+.meadow.snowy .hill-back { background: #EEF4FA; }
+.meadow.snowy .hill-front { background: #FFFFFF; }
+.meadow.snowy.night .hill-back { background: #C2CDE3; }
+.meadow.snowy.night .hill-front { background: #D9E1F0; }
+.meadow.snowy .flower-row span { color: #FFFFFF; text-shadow: 1px 2px #9DB4D6; }
 .hill-back { height: 130px; bottom: 12px; background: #A9D99E; transform: rotate(-4deg); }
 .hill-front { height: 100px; bottom: -24px; background: #83C78E; transform: rotate(4deg); }
 
@@ -80,6 +87,64 @@ h1, h2, h3 { font-weight: 800; }
 @keyframes idle-girl { 50% { transform: translateY(-3px); } }
 @keyframes idle-pet { 50% { transform: translateY(-7px); } }
 .name-tag { position: absolute; z-index: 4; top: -30px; left: 50%; transform: translateX(-50%); padding: 4px 9px; border: 1px solid #fff; border-radius: 6px; background: #fff9f2dd; color: #8c5a7a; font-size: 11px; font-weight: 800; white-space: nowrap; }
+/* ---------- ฉากชายหาด ---------- */
+.scene-beach { background: linear-gradient(#BDE8F5 0%, #E4F3F1 36%, #FDEBD3 52%); }
+.scene-beach.night { background: linear-gradient(#1C2654 0%, #2E3B73 38%, #3A4A86 52%); }
+.sea { position: absolute; left: 0; right: 0; top: 50%; height: 26%; background: linear-gradient(#7DD0E6, #4FA9D0); }
+.scene-beach.night .sea { background: linear-gradient(#2F4F86, #1F3A66); }
+.sea i { position: absolute; height: 3px; border-radius: 3px; background: #ffffffcc; animation: wave-drift 3.2s ease-in-out infinite alternate; }
+@keyframes wave-drift { to { transform: translateX(14px); opacity: .5; } }
+.sand { position: absolute; left: -15%; width: 130%; bottom: -38%; height: 74%; border-radius: 50%; background: #F6DFB0; box-shadow: 0 -6px 0 #FBEFD2; }
+.scene-beach.night .sand { background: #B5A383; box-shadow: 0 -6px 0 #C7B796; }
+.beach-decor { position: absolute; z-index: 4; inset: auto 0 0; height: 60px; pointer-events: none; }
+.beach-decor span { position: absolute; font-size: 17px; text-shadow: 1px 2px #c9a86a88; }
+.beach-decor .decor-0 { color: #F58F7C; }
+.beach-decor .decor-1 { color: #FFF4FB; font-size: 14px; }
+.beach-decor .decor-2 { color: #F7A8C8; font-size: 9px; }
+
+/* ---------- ฉากในร่ม: คาเฟ่ และห้องนอน ---------- */
+.window { position: absolute; border: 5px solid #fff; border-radius: 12px; background: linear-gradient(#BFE6F3, #E6F5EC); box-shadow: 0 4px 0 #0000000f; }
+.window::before { content: ""; position: absolute; left: calc(50% - 2px); top: 0; bottom: 0; width: 4px; background: #fff; }
+.window::after { content: ""; position: absolute; top: calc(50% - 2px); left: 0; right: 0; height: 4px; background: #fff; }
+.night .window { background: radial-gradient(circle at 72% 30%, #FFF1B8 0 6px, transparent 7px), radial-gradient(circle at 24% 22%, #FFF6C9 0 1.5px, transparent 2px), radial-gradient(circle at 38% 70%, #FFF6C9 0 1.5px, transparent 2px), linear-gradient(#1C2654, #34437E); }
+.floor { position: absolute; left: 0; right: 0; top: 78%; bottom: 0; }
+.dim { position: absolute; inset: 0; background: #1B1640; opacity: 0; pointer-events: none; transition: opacity .4s; }
+.night .dim { opacity: .3; }
+
+.scene-cafe { background: repeating-linear-gradient(90deg, #FBE7D3 0 22px, #F8DDC4 22px 44px); }
+.scene-cafe .window { left: 8%; top: 11%; width: 36%; height: 34%; }
+.scene-cafe .wainscot { position: absolute; left: 0; right: 0; top: 56%; bottom: 0; background: #E7C4A0; border-top: 4px solid #F6E3CF; }
+.scene-cafe .floor { background: repeating-linear-gradient(90deg, #C99A6E 0 46px, #BC8C60 46px 48px); border-top: 4px solid #A97A50; }
+.shelf { position: absolute; right: 8%; top: 32%; width: 34%; height: 6px; border-radius: 3px; background: #B98558; box-shadow: 0 3px 0 #0000001a; }
+.shelf i { position: absolute; bottom: 6px; width: 15%; aspect-ratio: 1; border-radius: 3px 3px 7px 7px; box-shadow: inset -3px 0 0 #0000001a; }
+.lamp { position: absolute; left: 68%; top: 0; width: 2px; height: 9%; background: #8C6A55; }
+.lamp::after { content: ""; position: absolute; left: -17px; top: 100%; width: 36px; height: 18px; border-radius: 36px 36px 0 0; background: #FFD77A; box-shadow: 0 8px 22px #ffd77aaa; }
+
+.scene-bedroom { background-color: #EADFF8; background-image: radial-gradient(#ffffffaa 2px, transparent 2.5px); background-size: 26px 26px; }
+.scene-bedroom .window { right: 9%; top: 16%; width: 30%; height: 30%; border-top-width: 12px; border-top-color: #F7A8C8; }
+.scene-bedroom .floor { background: repeating-linear-gradient(90deg, #E8CDAE 0 52px, #DDBF9D 52px 54px); border-top: 4px solid #CFAE8A; }
+.fairy-lights { position: absolute; left: 0; right: 0; top: 5%; height: 24px; }
+.fairy-lights i { position: absolute; width: 8px; height: 8px; border-radius: 50%; box-shadow: 0 0 8px currentColor; animation: twinkle 2.4s ease-in-out infinite; }
+.bed { position: absolute; left: 5%; top: 44%; width: 46%; height: 34%; }
+.bed .headboard { position: absolute; left: 0; top: 0; width: 24%; height: 100%; border-radius: 14px 14px 4px 4px; background: #F1A7C6; }
+.bed .mattress { position: absolute; left: 8%; right: 0; top: 46%; bottom: 0; border-radius: 10px 10px 4px 4px; background: #FFF9FC; box-shadow: 0 4px 0 #0000000f; }
+.bed .pillow { position: absolute; left: 12%; top: 30%; width: 26%; height: 26%; border-radius: 10px; background: #fff; box-shadow: 0 3px 0 #EADCF0; }
+.bed .blanket { position: absolute; left: 42%; right: 0; top: 42%; bottom: 0; border-radius: 12px 10px 4px 4px; background: #C9B2F2; box-shadow: inset 0 6px 0 #DCCBF7; }
+.rug { position: absolute; left: 20%; right: 8%; bottom: 5%; height: 17%; border-radius: 50%; background: #F7C4DA; box-shadow: inset 0 0 0 5px #FBE0EC; }
+
+/* ---------- ของลอยตามเทศกาล ---------- */
+.particles { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
+.particles span { position: absolute; line-height: 1; }
+.particles-fall span { top: -12%; animation: particle-fall linear infinite; }
+.particles-rise span { bottom: -12%; animation: particle-rise linear infinite; }
+.particles-float span { animation: particle-float 3s ease-in-out infinite alternate; }
+@keyframes particle-fall { to { transform: translate(18px, 400px) rotate(40deg); } }
+@keyframes particle-rise { 80% { opacity: 1; } to { transform: translate(-14px, -400px); opacity: 0; } }
+@keyframes particle-float { from { transform: translate(0, 0); } to { transform: translate(10px, -14px) rotate(8deg); } }
+.festival-banner { position: relative; z-index: 1; width: fit-content; max-width: min(100%, 480px); margin: 14px auto 0; padding: 8px 14px; border: 2px solid #fff; border-radius: 999px; background: #FFF9FCdd; color: #7A4560; font-size: 12px; font-weight: 800; text-align: center; box-shadow: 0 3px 0 #d889ae44; }
+.scene-card { padding: 14px 18px 16px; margin-top: 14px; }
+.scene-card .chips { margin-top: 9px; }
+
 /* ---------- จิ้มน้อง ---------- */
 .pet-button { position: relative; z-index: 2; display: block; padding: 0; border: 0; background: none; cursor: pointer; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
 .pet-button:focus-visible { outline: 3px solid #8B5CF6; outline-offset: 4px; border-radius: 8px; }

@@ -4,11 +4,12 @@ import { useEffect, useRef, useState } from "react";
 import { Heart, Sparkles, Shuffle, ArrowLeft, ArrowRight, RefreshCw, Flower2, Pencil, Volume2, VolumeX, Camera } from "lucide-react";
 import PixelGirl from "@/components/PixelGirl";
 import PixelPet, { type PetHandle } from "@/components/PixelPet";
-import Meadow from "@/components/Meadow";
+import Scene from "@/components/Scene";
 import SecretLetter from "@/components/SecretLetter";
 import { OptionBlock, Swatches, Chips, AccessoryPicker } from "@/components/Controls";
 import { skinTones, hairStyles, hairColors, outfits, girlAccessories, girlAccessoryCategories } from "@/config/character";
 import { petKinds, coats, petAccessories, petAccessoryCategories, type PetKind } from "@/config/pets";
+import { scenes, type SceneId } from "@/config/scenes";
 import {
   encouragements,
   copy,
@@ -25,6 +26,7 @@ import {
 import { withName } from "@/lib/text";
 import { useChiptune } from "@/lib/chiptune";
 import { localDayNumber, useDayNumber, useIsNight } from "@/lib/time";
+import { useFestival } from "@/lib/festival";
 import { renderSceneImage } from "@/lib/sceneImage";
 import type { GirlLook, PetLook } from "@/lib/sprites";
 import { saveState, type SavedState } from "@/lib/storage";
@@ -83,6 +85,7 @@ export default function Game({ saved, persist }: Props) {
   const [coatId, setCoatId] = useState(() => validId(coats, saved?.coat, defaults.coat));
   const [petAccessoryIds, setPetAccessoryIds] = useState<string[]>(() => validIds(petAccessories, saved?.petAccessories));
   const [petNameInput, setPetNameInput] = useState(typeof saved?.petName === "string" ? saved.petName.slice(0, PET_NAME_MAX) : "");
+  const [sceneId, setSceneId] = useState<SceneId>(() => validId(scenes, saved?.scene, scenes[0].id) as SceneId);
   const [moodId, setMoodId] = useState<string | null>(null);
   const [messageIndex, setMessageIndex] = useState(0);
   const [tapCount, setTapCount] = useState(() => toCount(saved?.tapCount));
@@ -99,6 +102,7 @@ export default function Game({ saved, persist }: Props) {
   const petRef = useRef<PetHandle>(null);
   const music = useChiptune();
   const night = useIsNight();
+  const festival = useFestival();
   const dayNumber = useDayNumber();
 
   const skin = skinTones.find((item) => item.id === skinId) ?? skinTones[0];
@@ -114,10 +118,13 @@ export default function Game({ saved, persist }: Props) {
     outfit,
     accessories: girlAccessories.filter((item) => girlAccessoryIds.includes(item.id)),
   };
+  // ช่วงเทศกาล น้องจะใส่หมวกเทศกาลให้เอง ถ้ายังไม่ได้เลือกอะไรไว้บนหัว
+  const wornPetItems = petAccessories.filter((item) => petAccessoryIds.includes(item.id));
+  const festiveHatId = festival?.petHat && !wornPetItems.some((item) => item.category === "head") ? festival.petHat : null;
   const petLook: PetLook = {
     kind: petKind,
     coat,
-    accessories: petAccessories.filter((item) => petAccessoryIds.includes(item.id)),
+    accessories: petAccessories.filter((item) => petAccessoryIds.includes(item.id) || item.id === festiveHatId),
   };
 
   const petName = petNameInput.trim() || petDefaultNames[petKind];
@@ -147,6 +154,7 @@ export default function Game({ saved, persist }: Props) {
       coat: coatId,
       petAccessories: petAccessoryIds,
       petName: petNameInput,
+      scene: sceneId,
       completed,
       tapCount,
       visitDays: visit.days,
@@ -164,6 +172,7 @@ export default function Game({ saved, persist }: Props) {
     coatId,
     petAccessoryIds,
     petNameInput,
+    sceneId,
     completed,
     tapCount,
     visit,
@@ -237,6 +246,8 @@ export default function Game({ saved, persist }: Props) {
         message: currentMessage,
         footer: fill(copy.footer),
         night,
+        scene: sceneId,
+        festival,
       });
       const file = new File([blob], copy.imageFileName, { type: "image/png" });
 
@@ -315,12 +326,14 @@ export default function Game({ saved, persist }: Props) {
         ))}
       </nav>
 
+      {festival && <p className="festival-banner">{fill(festival.greeting)}</p>}
+
       {/* ---------- ขั้นที่ 1: แต่งตัวละคร ---------- */}
       {step === 0 && (
         <>
-          <Meadow compact night={night} label="พรีวิวตัวละคร">
+          <Scene scene={sceneId} compact night={night} festival={festival} label="พรีวิวตัวละคร">
             <PixelGirl look={girlLook} />
-          </Meadow>
+          </Scene>
 
           <section className="card">
             <div className="section-heading">
@@ -375,9 +388,9 @@ export default function Game({ saved, persist }: Props) {
       {/* ---------- ขั้นที่ 2: เลือกเพื่อนซี้ ---------- */}
       {step === 1 && (
         <>
-          <Meadow compact night={night} label="พรีวิวสัตว์เลี้ยง">
+          <Scene scene={sceneId} compact night={night} festival={festival} label="พรีวิวสัตว์เลี้ยง">
             <PixelPet look={petLook} name={petName} lines={tapLines} onTap={handlePetTap} greeting={nightGreeting} treatEmoji={treat.emoji} />
-          </Meadow>
+          </Scene>
           <p className="meadow-hint">{tapStatus}</p>
 
           <section className="card">
@@ -437,7 +450,7 @@ export default function Game({ saved, persist }: Props) {
       {/* ---------- ขั้นที่ 3: ทุ่งดอกไม้ ---------- */}
       {step === 2 && (
         <>
-          <Meadow night={night} label={fill(copy.steps.result)}>
+          <Scene scene={sceneId} night={night} festival={festival} label={fill(copy.steps.result)}>
             <span className="float-heart" style={{ left: "18%", animationDelay: "0s" }} aria-hidden="true">♡</span>
             <span className="float-heart" style={{ left: "72%", animationDelay: "1.6s" }} aria-hidden="true">♡</span>
             <span className="float-heart" style={{ left: "48%", animationDelay: "2.9s" }} aria-hidden="true">♡</span>
@@ -451,13 +464,21 @@ export default function Game({ saved, persist }: Props) {
               greeting={nightGreeting}
               treatEmoji={treat.emoji}
             />
-          </Meadow>
+          </Scene>
           <div className="meadow-bar">
             <p className="meadow-hint" aria-live="polite">{tapStatus}</p>
             <button type="button" className="btn-icon feed-button" onClick={feedPet} disabled={feedLocked}>
               <span aria-hidden="true">{treat.emoji}</span> {fill(copy.buttons.feed).replaceAll("{treat}", treat.name)}
             </button>
           </div>
+
+          <section className="card scene-card">
+            <div className="option-title">
+              <span>{copy.options.scene}</span>
+              <small>{scenes.find((item) => item.id === sceneId)?.name}</small>
+            </div>
+            <Chips items={scenes} value={sceneId} onChange={(id) => setSceneId(id as SceneId)} />
+          </section>
 
           <section className="message-card">
             <div className="message-icon"><Heart size={19} fill="currentColor" /></div>

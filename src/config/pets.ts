@@ -86,6 +86,33 @@ export const petSprites: Record<PetKind, string[]> = {
   ],
 };
 
+// เฟรมขยับของน้อง: แถวที่ระบุจะถูกแทนที่ชั่วครู่ (เลขคือลำดับแถว เริ่มนับจาก 0)
+// blink = หลับตา, tail = หางอีกท่าหนึ่ง (สลับกับท่าปกติเป็นการกระดิกหาง)
+export const petBlinkRows: Record<PetKind, Record<number, string>> = {
+  cat: {
+    7: "...fffffffffffffffffF...",
+    9: "...fffffffffffffffffF...",
+  },
+  dog: {
+    7: "..FFFffffffffffffffFFF..",
+    9: "..FFFfffffggggfffffFFF..",
+  },
+};
+
+export const petTailRows: Record<PetKind, Record<number, string>> = {
+  cat: {
+    13: ".......fffffffffF.......",
+    14: "......fffggggggffF......",
+    15: "......fffggggggffF...ff.",
+    16: ".....ffffggggggffffffff.",
+  },
+  dog: {
+    13: ".......fffffffffF.......",
+    14: "......fffggggggffF..ff..",
+    15: "......fffggggggffFfff...",
+  },
+};
+
 // =====================================================================
 //  เครื่องประดับน้อง แยกเป็นหมวด เลือกได้หมวดละ 1 อย่าง ใส่ข้ามหมวดพร้อมกันได้
 //
@@ -201,6 +228,20 @@ export const petAccessories: PetAccessory[] = [
       "...........yy...........",
       "..........abab..........",
       ".........bababa.........",
+      "........wwwwwwww........",
+    ]),
+  },
+  {
+    id: "santa-hat",
+    category: "head",
+    name: "หมวกซานต้า",
+    emoji: "🎅",
+    palette: { a: "#E5484D", A: "#B8323A", w: "#FFFFFF" },
+    rows: both([
+      EMPTY,
+      "............aaaw........",
+      "..........aaaaAw........",
+      ".........aaaaaA.........",
       "........wwwwwwww........",
     ]),
   },
