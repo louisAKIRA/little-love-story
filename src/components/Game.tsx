@@ -7,7 +7,9 @@ import PixelPet, { type PetHandle } from "@/components/PixelPet";
 import Scene from "@/components/Scene";
 import SecretLetter from "@/components/SecretLetter";
 import { OptionBlock, Swatches, Chips, AccessoryPicker } from "@/components/Controls";
-import { skinTones, hairStyles, hairColors, outfits, girlAccessories, girlAccessoryCategories } from "@/config/character";
+import { skinTones, hairStyles, hairColors, girlAccessories, girlAccessoryCategories } from "@/config/character";
+import { clothing, clothingSlots, defaultClothesIds, type ClothingSlot } from "@/config/clothing";
+import { presetLooks, type PresetLook } from "@/config/looks";
 import { petKinds, coats, petAccessories, petAccessoryCategories, type PetKind } from "@/config/pets";
 import { scenes, type SceneId } from "@/config/scenes";
 import {
@@ -29,6 +31,7 @@ import { localDayNumber, useDayNumber, useIsNight } from "@/lib/time";
 import { useFestival } from "@/lib/festival";
 import { renderSceneImage } from "@/lib/sceneImage";
 import type { GirlLook, PetLook } from "@/lib/sprites";
+import { clothesFromSaved, normalizeClothes, pickClothing } from "@/lib/wardrobe";
 import { saveState, type SavedState } from "@/lib/storage";
 
 type Step = 0 | 1 | 2;
@@ -54,14 +57,35 @@ const toCount = (value: unknown) => (typeof value === "number" && Number.isFinit
 const fillNumbers = (text: string, values: Record<string, number>) =>
   Object.entries(values).reduce((result, [key, value]) => result.replaceAll(`{${key}}`, String(value)), text);
 
+// เสื้อผ้าสำหรับตัวเลือกแบบแท็บ: จุดสีมาจากสีหลักของชิ้นนั้น
+const clothingItems = clothing.map((piece) => ({
+  id: piece.id,
+  category: piece.slot,
+  name: piece.name,
+  colors: Object.entries(piece.palette)
+    .filter(([key]) => key === key.toLowerCase())
+    .map(([, color]) => color)
+    .slice(0, 2),
+}));
+
+// สุ่มชุด: บางทีได้เดรส บางทีได้เสื้อกับกางเกง
+const randomClothes = () => {
+  const inSlot = (slot: ClothingSlot) => clothing.filter((piece) => piece.slot === slot);
+  const ids = Math.random() < 0.4 ? [pick(inSlot("dress")).id] : [pick(inSlot("top")).id, pick(inSlot("bottom")).id];
+  ids.push(pick(inSlot("shoes")).id);
+  if (Math.random() < 0.15) ids.push(pick(inSlot("outer")).id);
+  return normalizeClothes(ids);
+};
+
+const sameSet = (a: string[], b: string[]) => a.length === b.length && a.every((id) => b.includes(id));
+
 const PET_NAME_MAX = 12;
 const FEED_COOLDOWN_MS = 800;
 
 const defaults = {
   skin: skinTones[0].id,
-  hairStyle: hairStyles[0].id,
-  hairColor: hairColors[1].id,
-  outfit: outfits[0].id,
+  hairStyle: (hairStyles.find((item) => item.id === "long") ?? hairStyles[0]).id,
+  hairColor: (hairColors.find((item) => item.id === "black") ?? hairColors[0]).id,
   petKind: "cat" as PetKind,
   coat: coats[0].id,
 };
@@ -79,7 +103,7 @@ export default function Game({ saved, persist }: Props) {
   const [skinId, setSkinId] = useState(() => validId(skinTones, saved?.skin, defaults.skin));
   const [hairStyleId, setHairStyleId] = useState(() => validId(hairStyles, saved?.hairStyle, defaults.hairStyle));
   const [hairColorId, setHairColorId] = useState(() => validId(hairColors, saved?.hairColor, defaults.hairColor));
-  const [outfitId, setOutfitId] = useState(() => validId(outfits, saved?.outfit, defaults.outfit));
+  const [clothingIds, setClothingIds] = useState<string[]>(() => clothesFromSaved(saved?.clothes, saved?.outfit));
   const [girlAccessoryIds, setGirlAccessoryIds] = useState<string[]>(() => validIds(girlAccessories, saved?.girlAccessories));
   const [petKind, setPetKind] = useState<PetKind>(saved?.petKind === "dog" || saved?.petKind === "cat" ? saved.petKind : defaults.petKind);
   const [coatId, setCoatId] = useState(() => validId(coats, saved?.coat, defaults.coat));
@@ -108,14 +132,13 @@ export default function Game({ saved, persist }: Props) {
   const skin = skinTones.find((item) => item.id === skinId) ?? skinTones[0];
   const hairStyle = hairStyles.find((item) => item.id === hairStyleId) ?? hairStyles[0];
   const hairColor = hairColors.find((item) => item.id === hairColorId) ?? hairColors[0];
-  const outfit = outfits.find((item) => item.id === outfitId) ?? outfits[0];
   const coat = coats.find((item) => item.id === coatId) ?? coats[0];
 
   const girlLook: GirlLook = {
     skin: skin.color,
     hairStyle,
     hairColor: hairColor.color,
-    outfit,
+    clothes: clothing.filter((piece) => clothingIds.includes(piece.id)),
     accessories: girlAccessories.filter((item) => girlAccessoryIds.includes(item.id)),
   };
   // ช่วงเทศกาล น้องจะใส่หมวกเทศกาลให้เอง ถ้ายังไม่ได้เลือกอะไรไว้บนหัว
@@ -148,7 +171,7 @@ export default function Game({ saved, persist }: Props) {
       skin: skinId,
       hairStyle: hairStyleId,
       hairColor: hairColorId,
-      outfit: outfitId,
+      clothes: clothingIds,
       girlAccessories: girlAccessoryIds,
       petKind,
       coat: coatId,
@@ -166,7 +189,7 @@ export default function Game({ saved, persist }: Props) {
     skinId,
     hairStyleId,
     hairColorId,
-    outfitId,
+    clothingIds,
     girlAccessoryIds,
     petKind,
     coatId,
@@ -191,11 +214,20 @@ export default function Game({ saved, persist }: Props) {
     if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  // ลุคสำเร็จรูป: ใส่เสื้อผ้าและเครื่องประดับทั้งชุด แล้วแก้ทีละชิ้นต่อได้
+  const applyLook = (look: PresetLook) => {
+    setClothingIds(normalizeClothes(look.clothes));
+    setGirlAccessoryIds(validIds(girlAccessories, look.accessories));
+  };
+  const activeLookId = presetLooks.find(
+    (look) => sameSet(normalizeClothes(look.clothes), clothingIds) && sameSet(validIds(girlAccessories, look.accessories), girlAccessoryIds),
+  )?.id;
+
   const randomizeCharacter = () => {
     setSkinId(pick(skinTones).id);
     setHairStyleId(pick(hairStyles).id);
     setHairColorId(pick(hairColors).id);
-    setOutfitId(pick(outfits).id);
+    setClothingIds(randomClothes());
     setGirlAccessoryIds(randomPerCategory(girlAccessories, 0.4));
   };
 
@@ -281,7 +313,7 @@ export default function Game({ saved, persist }: Props) {
     setSkinId(defaults.skin);
     setHairStyleId(defaults.hairStyle);
     setHairColorId(defaults.hairColor);
-    setOutfitId(defaults.outfit);
+    setClothingIds(normalizeClothes(defaultClothesIds));
     setGirlAccessoryIds([]);
     setPetKind(defaults.petKind);
     setCoatId(defaults.coat);
@@ -358,11 +390,30 @@ export default function Game({ saved, persist }: Props) {
               <Swatches items={hairColors} value={hairColorId} onChange={setHairColorId} prefix="สีผม" />
             </OptionBlock>
 
-            <OptionBlock title={copy.options.outfit} hint={outfit.name}>
-              <Chips
-                items={outfits.map((item) => ({ id: item.id, name: item.name, colors: [item.colors.a, item.colors.b] }))}
-                value={outfitId}
-                onChange={setOutfitId}
+            <OptionBlock title={fill(copy.options.looks)} hint={copy.options.looksHint}>
+              <div className="chips" role="group">
+                {presetLooks.map((look) => (
+                  <button
+                    key={look.id}
+                    type="button"
+                    className={`chip ${activeLookId === look.id ? "active" : ""}`}
+                    onClick={() => applyLook(look)}
+                    aria-pressed={activeLookId === look.id}
+                  >
+                    <span className="chip-emoji">{look.emoji}</span>
+                    {look.name}
+                  </button>
+                ))}
+              </div>
+            </OptionBlock>
+
+            <OptionBlock title={copy.options.outfit} hint={copy.options.outfitHint}>
+              <AccessoryPicker
+                categories={clothingSlots}
+                items={clothingItems}
+                values={clothingIds}
+                onPick={(slot, id) => setClothingIds((current) => pickClothing(current, slot as ClothingSlot, id))}
+                noneLabel={copy.options.accessoryNone}
               />
             </OptionBlock>
 

@@ -1,5 +1,5 @@
 // =====================================================================
-//  ตัวละครหญิง: สีผิว / ทรงผม / สีผม / เสื้อผ้า / เครื่องประดับ
+//  ตัวละครหญิง: สีผิว / ทรงผม / สีผม / เครื่องประดับ (เสื้อผ้าอยู่ใน clothing.ts)
 //  sprite เป็นตาราง 24 x 34 ช่อง แต่ละตัวอักษรคือ 1 พิกเซล
 //
 //  เส้นขอบสีเข้มรอบตัวละครถูกวาดให้อัตโนมัติ ไม่ต้องวาดเอง
@@ -8,9 +8,7 @@
 //  ตัวอักษรที่ใช้ (ตัวพิมพ์ใหญ่ = เงาของสีเดียวกัน ระบบคำนวณสีให้เอง)
 //    .  = โปร่งใส           o = เส้นสีเข้ม (ไว้วาดเส้นด้านใน)
 //    s/S = ผิว / เงาผิว     e = ตา   w = ประกายตา/สีขาว   c = แก้ม   m = ปาก
-//    k/K = รองเท้า
 //    h/H = ผม / เงาผม       i = ประกายผม    r/R = โบว์ (สีชมพูคงที่)
-//    a/A = สีหลักของชุด     b/B = สีรองของชุด
 // =====================================================================
 
 export const GIRL_WIDTH = 24;
@@ -20,7 +18,6 @@ export type SkinTone = { id: string; name: string; color: string };
 export type HairColor = { id: string; name: string; color: string };
 // rows = ผมด้านหน้า (ทับตัว), back = ผมด้านหลัง (อยู่หลังตัว ใช้กับผมยาว)
 export type HairStyle = { id: string; name: string; rows: string[]; back?: string[] };
-export type Outfit = { id: string; name: string; colors: { a: string; b: string }; rows: string[] };
 
 export const skinTones: SkinTone[] = [
   { id: "porcelain", name: "ขาวอมชมพู", color: "#FFE3D2" },
@@ -43,7 +40,8 @@ const EMPTY = "........................";
 const blank = (count: number) => Array.from({ length: count }, () => EMPTY);
 
 // ลำตัว (ไม่มีผม ไม่มีเสื้อผ้า)
-// หัว แถว 5-18 / ตา แถว 11-13 / คอ แถว 19 / ตัว แถว 20-26 / ขา แถว 27-30 / รองเท้า แถว 31-32
+// หัว แถว 5-18 / ตา แถว 11-13 / คอ แถว 19 / ไหล่ แถว 20 / แขน คอลัมน์ 6-7 กับ 16-17 แถว 21-25
+// ลำตัว คอลัมน์ 8-15 แถว 21-26 / ขา แถว 27-30 / เท้า แถว 31-32
 export const bodyRows: string[] = [
   ...blank(5),
   "........ssssssss........",
@@ -72,8 +70,8 @@ export const bodyRows: string[] = [
   ".........ss..ss.........",
   ".........ss..ss.........",
   ".........sS..sS.........",
-  "........kkk..kkk........",
-  "........kkK..kkK........",
+  ".........ss..ss.........",
+  "........sss..sss........",
   EMPTY,
 ];
 
@@ -208,95 +206,6 @@ export const hairStyles: HairStyle[] = [
   },
 ];
 
-// เสื้อผ้า วาดทับลำตัวตั้งแต่แถว 19-20 ลงไป
-export const outfits: Outfit[] = [
-  {
-    id: "dress",
-    name: "เดรสชมพู",
-    colors: { a: "#F6A5C6", b: "#FFFFFF" },
-    rows: [
-      ...blank(20),
-      ".......aaawwwwaaa.......",
-      "......aaaaawwaaaaa......",
-      "........aaaaaaaA........",
-      "........bbbbbbbb........",
-      "........aaaaaaaA........",
-      ".......aaaaaaaaaA.......",
-      "......aaaAaaaaAaaA......",
-      "......AAAAAAAAAAAA......",
-    ],
-  },
-  {
-    id: "tee-skirt",
-    name: "เสื้อยืด + กระโปรง",
-    colors: { a: "#FFF4D6", b: "#8B5CF6" },
-    rows: [
-      ...blank(20),
-      ".......aaaaaaaaaa.......",
-      "......aaaaaaaaaaaA......",
-      "........aaarraaA........",
-      "........aaaaaaaA........",
-      "........bbbbbbbb........",
-      ".......bbBbbbbBbb.......",
-      "......bbbBbbbbBbbB......",
-      "......BBBBBBBBBBBB......",
-    ],
-  },
-  {
-    id: "overalls",
-    name: "เอี๊ยมยีนส์",
-    colors: { a: "#6F8FD1", b: "#FFF9F1" },
-    rows: [
-      ...blank(20),
-      ".......bbbbbbbbbb.......",
-      "......bbbabbbbabbb......",
-      "........bwaaaawb........",
-      "........aaaaaaaA........",
-      "........aaAAAAaA........",
-      "........aaaaaaaA........",
-      "........aaaaaaaA........",
-      ".........aa..aA.........",
-      ".........aa..aA.........",
-      ".........aa..aA.........",
-      ".........AA..AA.........",
-    ],
-  },
-  {
-    id: "hoodie",
-    name: "ฮู้ดดี้",
-    colors: { a: "#B8E1C9", b: "#4E6B5C" },
-    rows: [
-      ...blank(19),
-      "........aaaaaaaa........",
-      "......aaaaaaaaaaaa......",
-      "......aaaawaawaaaA......",
-      "......aaaawaawaaaA......",
-      "......aaaaaaaaaaaA......",
-      "......AAaAAAAAAaAA......",
-      "........aAAAAAAa........",
-      "........AAAAAAAA........",
-      "........bbbbbbbB........",
-      "........bbb..bbB........",
-    ],
-  },
-  {
-    id: "sailor",
-    name: "ชุดกะลาสี",
-    colors: { a: "#FFFFFF", b: "#3F4F8C" },
-    rows: [
-      ...blank(20),
-      ".......bbbaaaabbb.......",
-      "......aabbbaabbbaa......",
-      "........aabrrbaA........",
-      "........aaarraaA........",
-      "........bbbbbbbb........",
-      ".......bbBbbbbBbb.......",
-      "......bbbBbbbbBbbB......",
-      "......BBBBBBBBBBBB......",
-    ],
-  },
-];
-
 // =====================================================================
 //  เครื่องประดับตัวละคร แยกเป็นหมวด เลือกได้หมวดละ 1 อย่าง ใส่ข้ามหมวดพร้อมกันได้
 //
@@ -322,7 +231,8 @@ export const girlAccessoryCategories: AccessoryCategory[] = [
   { id: "face", name: "ใบหน้า", emoji: "👓" },
   { id: "hair", name: "ติดผม", emoji: "🎀" },
   { id: "neck", name: "คอ", emoji: "🧣" },
-  { id: "hand", name: "ในมือ", emoji: "🧋" },
+  { id: "drink", name: "เครื่องดื่ม", emoji: "🧋" },
+  { id: "hand", name: "ในมือ", emoji: "🌷" },
 ];
 
 export const girlAccessories: GirlAccessory[] = [
@@ -492,6 +402,24 @@ export const girlAccessories: GirlAccessory[] = [
     ],
   },
 
+  {
+    id: "cap",
+    category: "head",
+    name: "หมวกแก๊ป",
+    emoji: "🧢",
+    palette: { a: "#F3E3C3", A: "#D9C39A", i: "#FFF6E2" },
+    rows: [
+      EMPTY,
+      EMPTY,
+      "........aaaaaaaa........",
+      "......aaiaaaaaaaaA......",
+      ".....aaiaaaaaaaaaaA.....",
+      "....aaaaaaaaaaaaaaAA....",
+      "....aaaaaaaaaaaaaaAA....",
+      ".AAAAAAAAAAAA...........",
+    ],
+  },
+
   // ---------- ติดผม ----------
   {
     id: "clip",
@@ -534,7 +462,58 @@ export const girlAccessories: GirlAccessory[] = [
     ],
   },
 
-  // ---------- ในมือ ----------
+  // ---------- เครื่องดื่ม (ถือมือซ้ายของจอ) ----------
+  {
+    id: "bubble-tea",
+    category: "drink",
+    name: "ชานมไข่มุก",
+    emoji: "🧋",
+    palette: { w: "#FFFFFF", t: "#D9A066", b: "#5A3A2E", k: "#F45C8E" },
+    rows: [
+      ...blank(20),
+      "....k...................",
+      "....k...................",
+      "..wwww..................",
+      "..tttt..................",
+      "..tttt..................",
+      "..tbtb..................",
+      "...tt...................",
+    ],
+  },
+  {
+    id: "iced-tea",
+    category: "drink",
+    name: "ชาเย็น",
+    emoji: "🧃",
+    palette: { k: "#3A3540", w: "#FFFFFF", o: "#F2A65A", O: "#D9853B" },
+    rows: [
+      ...blank(20),
+      "....k...................",
+      "....k...................",
+      "..wwww..................",
+      "..owoo..................",
+      "..oooo..................",
+      "..oooO..................",
+      "...oO...................",
+    ],
+  },
+  {
+    id: "coffee",
+    category: "drink",
+    name: "กาแฟแก้วกระดาษ",
+    emoji: "☕",
+    palette: { w: "#FFFFFF", W: "#E6E0EA", b: "#B98558" },
+    rows: [
+      ...blank(22),
+      "..wwww..................",
+      "..wwwW..................",
+      "..bbbb..................",
+      "..wwwW..................",
+      "...wW...................",
+    ],
+  },
+
+  // ---------- ในมือ (ถือมือขวาของจอ) ----------
   {
     id: "tulip",
     category: "hand",
@@ -553,20 +532,21 @@ export const girlAccessories: GirlAccessory[] = [
     ],
   },
   {
-    id: "bubble-tea",
+    id: "rose-bouquet",
     category: "hand",
-    name: "ชานมไข่มุก",
-    emoji: "🧋",
-    palette: { w: "#FFFFFF", t: "#D9A066", b: "#5A3A2E", k: "#F45C8E" },
+    name: "ช่อกุหลาบ",
+    emoji: "🌹",
+    palette: { r: "#E5484D", R: "#B8323A", g: "#6DBE72", w: "#FFFFFF", W: "#E6E0EA" },
     rows: [
-      ...blank(20),
-      "....k...................",
-      "....k...................",
-      "..wwww..................",
-      "..tttt..................",
-      "..tttt..................",
-      "..tbtb..................",
-      "...tt...................",
+      ...blank(18),
+      ".................rr.....",
+      "................rRrr....",
+      "................rrRg....",
+      "................wwww....",
+      ".................wwW....",
+      ".................wWw....",
+      "..................ww....",
+      "..................w.....",
     ],
   },
   {

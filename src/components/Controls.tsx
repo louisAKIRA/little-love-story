@@ -75,31 +75,40 @@ export function Chips({ items, value, onChange }: { items: ChipItem[]; value: st
   );
 }
 
-type AccessoryItem = { id: string; category: string; name: string; emoji?: string };
-type AccessoryCategoryItem = { id: string; name: string; emoji?: string };
+type AccessoryItem = { id: string; category: string; name: string; emoji?: string; colors?: string[] };
+// optional = false คือหมวดที่ต้องมีของเสมอ (ไม่มีปุ่ม "ไม่ใส่")
+type AccessoryCategoryItem = { id: string; name: string; emoji?: string; optional?: boolean };
 
-// ตัวเลือกเครื่องประดับแบบแท็บหมวดหมู่: เลือกได้หมวดละ 1 อย่าง ใส่ข้ามหมวดพร้อมกันได้
+// ตัวเลือกแบบแท็บหมวดหมู่ ใช้ทั้งเครื่องประดับและเสื้อผ้า: เลือกได้หมวดละ 1 อย่าง ใส่ข้ามหมวดพร้อมกันได้
 // แท็บของหมวดที่ใส่ของอยู่จะมีจุดสีบอกไว้
+// ถ้าส่ง onPick มา จะให้ผู้เรียกจัดการกติกาเอง (เช่น ใส่เดรสแล้วถอดเสื้อกับกางเกง)
 export function AccessoryPicker({
   categories,
   items,
   values,
   onChange,
+  onPick,
   noneLabel,
 }: {
   categories: AccessoryCategoryItem[];
   items: AccessoryItem[];
   values: string[];
-  onChange: (ids: string[]) => void;
+  onChange?: (ids: string[]) => void;
+  onPick?: (categoryId: string, id: string | null) => void;
   noneLabel: string;
 }) {
   const [active, setActive] = useState(categories[0]?.id ?? "");
   const selectedIn = (categoryId: string) => items.find((item) => item.category === categoryId && values.includes(item.id));
   const current = selectedIn(active);
+  const optional = categories.find((category) => category.id === active)?.optional !== false;
 
   const choose = (id: string | null) => {
+    if (onPick) {
+      onPick(active, id);
+      return;
+    }
     const others = values.filter((value) => items.find((item) => item.id === value)?.category !== active);
-    onChange(id ? [...others, id] : others);
+    onChange?.(id ? [...others, id] : others);
   };
 
   return (
@@ -124,9 +133,11 @@ export function AccessoryPicker({
         })}
       </div>
       <div className="chips" role="radiogroup">
-        <button type="button" role="radio" className={`chip ${current ? "" : "active"}`} onClick={() => choose(null)} aria-checked={!current}>
-          {noneLabel}
-        </button>
+        {optional && (
+          <button type="button" role="radio" className={`chip ${current ? "" : "active"}`} onClick={() => choose(null)} aria-checked={!current}>
+            {noneLabel}
+          </button>
+        )}
         {items
           .filter((item) => item.category === active)
           .map((item) => (

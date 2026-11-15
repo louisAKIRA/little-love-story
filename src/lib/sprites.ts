@@ -1,5 +1,6 @@
 import { mix } from "@/lib/color";
-import { bodyBlinkRows, bodyRows, type GirlAccessory, type HairStyle, type Outfit } from "@/config/character";
+import { bodyBlinkRows, bodyRows, type GirlAccessory, type HairStyle } from "@/config/character";
+import type { ClothingPiece } from "@/config/clothing";
 import { petBlinkRows, petSprites, petTailRows, type Coat, type PetAccessory, type PetKind } from "@/config/pets";
 
 // เลเยอร์ของ sprite: ตารางตัวอักษร + สีของแต่ละตัวอักษร
@@ -62,6 +63,16 @@ function withRows(rows: string[], ...overrides: (Record<number, string> | false 
   return rows.map((row, index) => active.reduce<string>((result, override) => override[index] ?? result, row));
 }
 
+// เติมเฉดเงาให้ตัวพิมพ์ใหญ่ที่ palette ไม่ได้กำหนดไว้ (a → A, b → B ...)
+function withShades(palette: Record<string, string>): Record<string, string> {
+  const result = { ...palette };
+  for (const [key, color] of Object.entries(palette)) {
+    const upper = key.toUpperCase();
+    if (key !== upper && !(upper in result)) result[upper] = mix(color, SHADE, 0.22);
+  }
+  return result;
+}
+
 export type GirlFrame = { blink?: boolean };
 export type PetFrame = { blink?: boolean; tail?: boolean };
 
@@ -69,7 +80,8 @@ export type GirlLook = {
   skin: string;
   hairStyle: HairStyle;
   hairColor: string;
-  outfit: Outfit;
+  // เสื้อผ้าที่ใส่อยู่ เรียงตามลำดับการวาดทับ (ดู clothing.ts)
+  clothes: ClothingPiece[];
   accessories: GirlAccessory[];
 };
 
@@ -84,27 +96,25 @@ export function girlLayers(look: GirlLook, frame: GirlFrame = {}): SpriteLayer[]
     R: "#C9457C",
     o: OUTLINE,
   };
-  const { a, b } = look.outfit.colors;
+  const skinShade = mix(look.skin, "#8A3550", 0.24);
   return [
     ...(look.hairStyle.back ? [{ rows: look.hairStyle.back, palette: hairPalette }] : []),
     {
       rows: withRows(bodyRows, frame.blink && bodyBlinkRows),
       palette: {
         s: look.skin,
-        S: mix(look.skin, "#8A3550", 0.24),
+        S: skinShade,
         e: EYE,
         w: "#FFFFFF",
         c: mix(look.skin, "#F0608F", 0.5),
         m: mix(look.skin, "#8E2F4A", 0.9),
-        k: "#5A3A4A",
-        K: "#7C566B",
         o: OUTLINE,
       },
     },
-    {
-      rows: look.outfit.rows,
-      palette: { a, A: mix(a, SHADE, 0.22), b, B: mix(b, SHADE, 0.22), w: "#FFFFFF", r: "#EF4F80", o: OUTLINE },
-    },
+    ...look.clothes.map((piece) => ({
+      rows: piece.rows,
+      palette: withShades({ s: look.skin, S: skinShade, o: OUTLINE, ...piece.palette }),
+    })),
     { rows: look.hairStyle.rows, palette: hairPalette },
     ...look.accessories.map((item) => ({ rows: item.rows, palette: item.palette })),
   ];

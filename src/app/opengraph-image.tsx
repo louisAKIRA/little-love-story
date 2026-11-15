@@ -1,6 +1,7 @@
 import { ImageResponse } from "next/og";
 import { compositeLayers, girlLayers, petLayers, renderSprite, type SpriteLayer } from "@/lib/sprites";
-import { GIRL_WIDTH, GIRL_HEIGHT, skinTones, hairStyles, hairColors, outfits } from "@/config/character";
+import { GIRL_WIDTH, GIRL_HEIGHT, skinTones, hairStyles, hairColors } from "@/config/character";
+import { clothing, defaultClothesIds } from "@/config/clothing";
 import { PET_WIDTH, PET_HEIGHT, coats, petAccessories } from "@/config/pets";
 import { copy } from "@/config/messages";
 import { withName } from "@/lib/text";
@@ -57,9 +58,9 @@ export default async function OpengraphImage() {
   // หน้าตาเริ่มต้นของตัวละครกับน้อง (ตอน build ยังไม่รู้ว่าหวานแต่งแบบไหน)
   const girl = girlLayers({
     skin: skinTones[0].color,
-    hairStyle: hairStyles[0],
-    hairColor: hairColors[1].color,
-    outfit: outfits[0],
+    hairStyle: hairStyles.find((item) => item.id === "long") ?? hairStyles[0],
+    hairColor: (hairColors.find((item) => item.id === "black") ?? hairColors[0]).color,
+    clothes: clothing.filter((piece) => defaultClothesIds.includes(piece.id)),
     accessories: [],
   });
   const pet = petLayers({ kind: "cat", coat: coats[0], accessories: petAccessories.filter((item) => item.id === "bow") });

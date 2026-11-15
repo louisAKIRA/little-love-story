@@ -11,7 +11,9 @@ export type SavedState = {
   skin?: string;
   hairStyle?: string;
   hairColor?: string;
+  // outfit = ชุดแบบเก่าก่อนแยกชิ้น (อ่านอย่างเดียว เพื่อแปลงเป็น clothes)
   outfit?: string;
+  clothes?: string[];
   girlAccessories?: string[];
   petKind?: PetKind;
   coat?: string;
