@@ -4,11 +4,15 @@
 //
 //  clothes     = id ของเสื้อผ้าใน clothing.ts
 //  accessories = id ของเครื่องประดับใน character.ts
+//  scene       = ฉากที่เปลี่ยนให้เองตอนกดลุค (id ใน scenes.ts) ไม่ใส่ = ฉากเดิม
 //  เพิ่มลุคใหม่ได้ โดยเพิ่ม object ในรายการนี้
 // =====================================================================
 
+import type { SceneId } from "@/config/scenes";
+
 export type PresetLook = {
   id: string;
+  scene?: SceneId;
   name: string;
   emoji: string;
   clothes: string[];
@@ -18,6 +22,7 @@ export type PresetLook = {
 export const presetLooks: PresetLook[] = [
   {
     id: "white-maxi",
+    scene: "pond",
     name: "เดรสขาวริมสระ",
     emoji: "🤍",
     clothes: ["maxi-white", "flats-white"],
@@ -25,6 +30,7 @@ export const presetLooks: PresetLook[] = [
   },
   {
     id: "rose-day",
+    scene: "cafe",
     name: "วันได้ช่อกุหลาบ",
     emoji: "🌹",
     clothes: ["peplum-cream", "shorts-white", "sandals-cream"],
@@ -32,6 +38,7 @@ export const presetLooks: PresetLook[] = [
   },
   {
     id: "pink-cafe",
+    scene: "cafe",
     name: "ชมพูหวานในคาเฟ่",
     emoji: "🎀",
     clothes: ["puff-pink", "shorts-pink", "flats-white"],
@@ -39,6 +46,7 @@ export const presetLooks: PresetLook[] = [
   },
   {
     id: "mountain-morning",
+    scene: "mountain",
     name: "ขึ้นดอยตอนเช้า",
     emoji: "⛰️",
     clothes: ["longsleeve-black", "shorts-black", "clogs-socks"],
@@ -46,6 +54,7 @@ export const presetLooks: PresetLook[] = [
   },
   {
     id: "polka-dot",
+    scene: "cafe",
     name: "เดรสลายจุด",
     emoji: "🖤",
     clothes: ["polka-dress", "sandals-cream"],
@@ -53,6 +62,7 @@ export const presetLooks: PresetLook[] = [
   },
   {
     id: "boat-day",
+    scene: "beach",
     name: "วันล่องเรือ",
     emoji: "⛵",
     clothes: ["bikini-top-blue", "bikini-bottom-blue", "barefoot"],
@@ -60,6 +70,7 @@ export const presetLooks: PresetLook[] = [
   },
   {
     id: "cap-chill",
+    scene: "beach",
     name: "สายชิลใส่หมวกแก๊ป",
     emoji: "🧢",
     clothes: ["bandeau-floral", "trousers-white", "shirt-white", "sandals-cream"],
@@ -67,6 +78,7 @@ export const presetLooks: PresetLook[] = [
   },
   {
     id: "sunset-beach",
+    scene: "sunset",
     name: "ชายหาดตอนเย็น",
     emoji: "🌅",
     clothes: ["bikini-top-black", "bikini-bottom-black", "barefoot"],

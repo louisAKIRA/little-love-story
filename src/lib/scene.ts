@@ -12,3 +12,39 @@ export const STARS: [number, number][] = [
 export const BEACH_DECOR = ["★", "✿", "★", "●", "★", "✿", "●", "★"];
 export const CUP_COLORS = ["#F7A8C8", "#B8E1C9", "#C9B2F2", "#FFD77A"];
 export const LIGHT_COLORS = ["#F7A8C8", "#FFD77A", "#B8E1C9", "#C9B2F2", "#8FD0F0"];
+
+// ---------- ดอยตอนเช้า: สันเขา 3 ชั้น (ไกล กลาง ใกล้) ----------
+// bottom / height = ตำแหน่งกล่องของสันเขา เป็น % ของความสูงฉาก
+// points = รูปทรงของสันเขาในกล่อง [x %, y %] ใช้ทั้ง clip-path บนจอและวาดในรูปสตอรี่
+export type Ridge = { bottom: number; height: number; day: string; night: string; points: [number, number][] };
+
+export const RIDGES: Ridge[] = [
+  {
+    bottom: 34,
+    height: 38,
+    day: "#B4CAD6",
+    night: "#3D4D6E",
+    points: [[0, 55], [10, 38], [22, 52], [36, 18], [50, 46], [63, 26], [78, 50], [90, 30], [100, 44], [100, 100], [0, 100]],
+  },
+  {
+    bottom: 24,
+    height: 34,
+    day: "#86AE97",
+    night: "#2F4A4E",
+    points: [[0, 40], [14, 22], [30, 48], [46, 28], [60, 52], [76, 20], [100, 46], [100, 100], [0, 100]],
+  },
+  {
+    bottom: 16,
+    height: 26,
+    day: "#5F9466",
+    night: "#253F33",
+    points: [[0, 30], [18, 50], [34, 26], [52, 46], [70, 30], [88, 52], [100, 36], [100, 100], [0, 100]],
+  },
+];
+
+export const polygonCss = (points: [number, number][]) => `polygon(${points.map(([x, y]) => `${x}% ${y}%`).join(", ")})`;
+
+// ---------- สนามหญ้าริมสระ: พุ่มไม้แนวหลัง [ซ้าย %, ขนาด px ที่ฉากสูง 300px] ----------
+export const TREE_BUMPS: [number, number][] = [
+  [-3, 46], [7, 38], [15, 52], [26, 40], [35, 48], [46, 36], [55, 50], [66, 42], [76, 54], [87, 40], [95, 48],
+];

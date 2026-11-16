@@ -1,5 +1,5 @@
 import { girlLayers, petLayers, renderSprite, type GirlLook, type PetLook, type SpriteLayer } from "@/lib/sprites";
-import { BEACH_DECOR, CUP_COLORS, FLOWERS, LIGHT_COLORS, STARS } from "@/lib/scene";
+import { BEACH_DECOR, CUP_COLORS, FLOWERS, LIGHT_COLORS, RIDGES, STARS, TREE_BUMPS } from "@/lib/scene";
 import { scenes, type SceneId } from "@/config/scenes";
 import type { Festival } from "@/config/festivals";
 import { GIRL_WIDTH, GIRL_HEIGHT } from "@/config/character";
@@ -165,7 +165,7 @@ type FontOf = (weight: number) => (size: number) => string;
 const cssScale = (area: Area) => area.h / 300;
 
 // ท้องฟ้าของฉากกลางแจ้ง: ไล่สี ดาว พระอาทิตย์/พระจันทร์ เมฆ
-function drawSky(ctx: Ctx, area: Area, night: boolean, stops: [number, string][]) {
+function drawSky(ctx: Ctx, area: Area, night: boolean, stops: [number, string][], options: { sun?: boolean; cloud?: string } = {}) {
   const sky = ctx.createLinearGradient(0, area.y, 0, area.y + area.h);
   for (const [offset, color] of stops) sky.addColorStop(offset, color);
   ctx.fillStyle = sky;
@@ -189,11 +189,11 @@ function drawSky(ctx: Ctx, area: Area, night: boolean, stops: [number, string][]
     }
     ctx.restore();
     drawMoon(ctx, area.x + area.w - 130, area.y + 130);
-  } else {
+  } else if (options.sun !== false) {
     drawSun(ctx, area.x + area.w - 130, area.y + 130);
   }
 
-  ctx.fillStyle = night ? "rgba(255, 249, 252, 0.25)" : "rgba(255, 249, 252, 0.92)";
+  ctx.fillStyle = night ? "rgba(255, 249, 252, 0.25)" : options.cloud ?? "rgba(255, 249, 252, 0.92)";
   drawCloud(ctx, area.x + 0.12 * area.w + 100, area.y + 170, 1);
   drawCloud(ctx, area.x + 0.72 * area.w, area.y + 270, 0.7);
 }
@@ -258,28 +258,188 @@ function drawBackdrop(ctx: Ctx, o: SceneImageOptions, area: Area, font: FontOf) 
     return;
   }
 
-  if (o.scene === "beach") {
-    drawSky(ctx, area, night, night ? [[0, "#1C2654"], [0.38, "#2E3B73"], [0.52, "#3A4A86"]] : [[0, "#BDE8F5"], [0.36, "#E4F3F1"], [0.52, "#FDEBD3"]]);
+  if (o.scene === "beach" || o.scene === "sunset") {
+    const sunset = o.scene === "sunset";
+    const nightSky: [number, string][] = [[0, "#1C2654"], [0.38, "#2E3B73"], [0.52, "#3A4A86"]];
+    const daySky: [number, string][] = sunset
+      ? [[0, "#F7B977"], [0.38, "#FAD08F"], [0.52, "#F8C48E"]]
+      : [[0, "#BDE8F5"], [0.36, "#E4F3F1"], [0.52, "#FDEBD3"]];
+    const k = cssScale(area);
     const seaTop = y + h * 0.5;
     const seaH = h * 0.26;
+
+    if (sunset && !night) {
+      // วาดท้องฟ้าก่อน แล้วพระอาทิตย์ จากนั้นทะเลจะทับครึ่งล่างให้เหมือนกำลังตก
+      drawSky(ctx, area, night, daySky, { sun: false, cloud: "rgba(247, 203, 190, 0.9)" });
+      ctx.save();
+      ctx.shadowColor = "rgba(255, 217, 138, 0.9)";
+      ctx.shadowBlur = 70;
+      ctx.fillStyle = "#FFE7A3";
+      ctx.beginPath();
+      ctx.arc(x + w * 0.88, y + h * 0.4 + 32 * k, 32 * k, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    } else {
+      drawSky(ctx, area, night, night ? nightSky : daySky, { sun: !sunset });
+    }
+
+    if (sunset) {
+      ctx.fillStyle = "#3F4A3A";
+      ctx.beginPath();
+      ctx.ellipse(x + w * 0.09, y + h * 0.52, w * 0.13, h * 0.09, 0, Math.PI, 0);
+      ctx.closePath();
+      ctx.fill();
+    }
+
     const sea = ctx.createLinearGradient(0, seaTop, 0, seaTop + seaH);
-    sea.addColorStop(0, night ? "#2F4F86" : "#7DD0E6");
-    sea.addColorStop(1, night ? "#1F3A66" : "#4FA9D0");
+    sea.addColorStop(0, night ? "#2F4F86" : sunset ? "#F3B07E" : "#7DD0E6");
+    sea.addColorStop(1, night ? "#1F3A66" : sunset ? "#D88E7D" : "#4FA9D0");
     ctx.fillStyle = sea;
     ctx.fillRect(x, seaTop, w, seaH);
+
+    if (sunset && !night) {
+      ctx.fillStyle = "rgba(255, 231, 163, 0.8)";
+      for (let gy = seaTop; gy < seaTop + seaH * 0.7; gy += 8 * k) ctx.fillRect(x + w * 0.88 - 20 * k, gy, 40 * k, 3 * k);
+    }
+
     ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
     for (const [left, top, width] of [[0.08, 0.22, 0.16], [0.46, 0.4, 0.22], [0.7, 0.16, 0.14], [0.24, 0.62, 0.18]]) {
       roundRectPath(ctx, x + w * left, seaTop + seaH * top, w * width, 8, 4);
       ctx.fill();
     }
-    ctx.fillStyle = night ? "#C7B796" : "#FBEFD2";
+
+    const sandLight = night ? "#C7B796" : sunset ? "#F4E2C8" : "#FBEFD2";
+    const sandMain = night ? "#B5A383" : sunset ? "#EBD2B0" : "#F6DFB0";
+    ctx.fillStyle = sandLight;
     ctx.beginPath();
     ctx.ellipse(x + w / 2, y + h * 1.01 - 16, w * 0.65, h * 0.37, 0, 0, Math.PI * 2);
     ctx.fill();
-    ctx.fillStyle = night ? "#B5A383" : "#F6DFB0";
+    ctx.fillStyle = sandMain;
     ctx.beginPath();
     ctx.ellipse(x + w / 2, y + h * 1.01, w * 0.65, h * 0.37, 0, 0, Math.PI * 2);
     ctx.fill();
+    return;
+  }
+
+  if (o.scene === "pond") {
+    const k = cssScale(area);
+    drawSky(ctx, area, night, night ? [[0, "#1C2654"], [0.42, "#2E3B73"]] : [[0, "#BFE0F2"], [0.42, "#E4F1F4"]]);
+
+    // พุ่มไม้แนวหลัง: แถบสี่เหลี่ยม + วงกลมเป็นพุ่ม
+    const treeX = x - w * 0.04;
+    const treeW = w * 1.08;
+    const treeTop = y + h * 0.36;
+    const treeH = h * 0.18;
+    ctx.fillStyle = night ? "#24402A" : "#557F52";
+    ctx.fillRect(treeX, treeTop, treeW, treeH);
+    for (const [left, size] of TREE_BUMPS) {
+      const r = (size * k) / 2;
+      ctx.beginPath();
+      ctx.arc(treeX + (left / 100) * treeW + r, treeTop + treeH * 0.6 - r, r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // พุ่มดอกไม้สีเหลือง
+    const bushX = x + w * 0.36;
+    const bushW = w * 0.68;
+    const bushTop = y + h * 0.44;
+    const bushH = h * 0.12;
+    roundRectPath(ctx, bushX, bushTop, bushW, bushH + 40, 30 * k);
+    ctx.fillStyle = night ? "#2F5A33" : "#6FA65A";
+    ctx.fill();
+    ctx.fillStyle = night ? "#B08A2E" : "#F5B82E";
+    for (let dy = bushTop + 5 * k; dy < bushTop + bushH; dy += 10 * k) {
+      for (let dx = bushX + 6 * k; dx < bushX + bushW; dx += 12 * k) {
+        ctx.beginPath();
+        ctx.arc(dx, dy, 2 * k, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    // สนามหญ้า
+    const lawnTop = y + h * 0.52;
+    const lawn = ctx.createLinearGradient(0, lawnTop, 0, y + h);
+    lawn.addColorStop(0, night ? "#3F6B3F" : "#93CF6C");
+    lawn.addColorStop(1, night ? "#355C36" : "#7DBE5A");
+    ctx.fillStyle = lawn;
+    ctx.fillRect(x, lawnTop, w, y + h - lawnTop);
+
+    // สระน้ำ (ขอบหญ้า + น้ำ + ประกายน้ำ)
+    const pondX = x + w * 0.81;
+    const pondY = y + h * 0.7;
+    const rx = w * 0.31;
+    const ry = h * 0.1;
+    ctx.fillStyle = night ? "#2F5A33" : "#6CA94F";
+    ctx.beginPath();
+    ctx.ellipse(pondX, pondY, rx + 5 * k, ry + 5 * k, 0, 0, Math.PI * 2);
+    ctx.fill();
+    const water = ctx.createLinearGradient(0, pondY - ry, 0, pondY + ry);
+    water.addColorStop(0, night ? "#2F4F86" : "#B4DAEA");
+    water.addColorStop(1, night ? "#1F3A66" : "#8CC0D8");
+    ctx.fillStyle = water;
+    ctx.beginPath();
+    ctx.ellipse(pondX, pondY, rx, ry, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
+    const pondLeft = pondX - rx;
+    for (const [left, top, width] of [[0.22, 0.3, 0.2], [0.5, 0.58, 0.26]]) {
+      roundRectPath(ctx, pondLeft + rx * 2 * left, pondY - ry + ry * 2 * top, rx * 2 * width, 3 * k, 1.5 * k);
+      ctx.fill();
+    }
+    return;
+  }
+
+  if (o.scene === "mountain") {
+    const k = cssScale(area);
+    drawSky(
+      ctx,
+      area,
+      night,
+      night ? [[0, "#1C2654"], [0.5, "#2E3B73"], [0.72, "#46507E"]] : [[0, "#BFDDF0"], [0.45, "#E3EFF3"], [0.7, "#F6E7D2"]],
+    );
+
+    // สันเขา 3 ชั้น จากรูปทรงเดียวกับบนจอ
+    for (const ridge of RIDGES) {
+      const boxH = h * (ridge.height / 100);
+      const boxTop = y + h * (1 - (ridge.bottom + ridge.height) / 100);
+      ctx.fillStyle = night ? ridge.night : ridge.day;
+      ctx.beginPath();
+      ridge.points.forEach(([px, py], index) => {
+        const cx = x + (px / 100) * w;
+        const cy = boxTop + (py / 100) * boxH;
+        if (index === 0) ctx.moveTo(cx, cy);
+        else ctx.lineTo(cx, cy);
+      });
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    // หมอก
+    ctx.fillStyle = night ? "rgba(255, 255, 255, 0.12)" : "rgba(255, 255, 255, 0.5)";
+    for (const bottomPct of [0.4, 0.3]) {
+      ctx.beginPath();
+      ctx.ellipse(x + w / 2, y + h * (1 - bottomPct) - 8 * k, w * 0.6, 8 * k, 0, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // ลานหินชมวิว
+    const ledgeTop = y + h * 0.78;
+    roundRectPath(ctx, x - w * 0.05, ledgeTop, w * 1.1, h * 0.3, 60 * k);
+    ctx.fillStyle = night ? "#8E8274" : "#CDBBA2";
+    ctx.fill();
+    roundRectPath(ctx, x - w * 0.05, ledgeTop + 6 * k, w * 1.1, h * 0.3, 60 * k);
+    ctx.fillStyle = night ? "#7E7266" : "#B9A58C";
+    ctx.fill();
+
+    // เสาไม้ทางขวา
+    const postW = 22 * k;
+    const postX = x + w * 0.93 - postW;
+    const postTop = y + h * 0.24;
+    roundRectPath(ctx, postX, postTop, postW, h * 0.62, 4 * k);
+    ctx.fillStyle = night ? "#5A4032" : "#8B6248";
+    ctx.fill();
+    ctx.fillStyle = night ? "#46301F" : "#6E4A35";
+    ctx.fillRect(postX + postW - 5 * k, postTop + 2 * k, 5 * k, h * 0.62 - 4 * k);
     return;
   }
 
@@ -419,7 +579,7 @@ function drawForeground(ctx: Ctx, o: SceneImageOptions, area: Area, font: FontOf
   if (o.scene === "meadow") {
     drawFlowerRow(ctx, bottom - 70, 64, 1, o.festival?.snowyGround ? "#FFFFFF" : "#FFE6F1", 1, font(400));
   }
-  if (o.scene === "beach") {
+  if (o.scene === "beach" || o.scene === "sunset") {
     const k = cssScale(area);
     const styles: [string, number][] = [["#F58F7C", 17 * k], ["#FFF4FB", 14 * k], ["#F7A8C8", 9 * k]];
     BEACH_DECOR.forEach((glyph, index) => {
@@ -530,7 +690,7 @@ export async function renderSceneImage(o: SceneImageOptions): Promise<Blob> {
   const girlX = W / 2 - (girlW + gap + petW) / 2;
   const petX = girlX + girlW + gap;
 
-  ctx.fillStyle = o.scene === "meadow" ? "rgba(71, 123, 74, 0.28)" : "rgba(70, 45, 70, 0.18)";
+  ctx.fillStyle = o.scene === "meadow" || o.scene === "pond" ? "rgba(71, 123, 74, 0.28)" : "rgba(70, 45, 70, 0.18)";
   for (const centerX of [girlX + girlW / 2, petX + petW / 2]) {
     ctx.beginPath();
     ctx.ellipse(centerX, baseline + 6, 120, 16, 0, 0, Math.PI * 2);

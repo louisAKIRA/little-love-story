@@ -102,6 +102,48 @@ h1, h2, h3 { font-weight: 800; }
 .beach-decor .decor-1 { color: #FFF4FB; font-size: 14px; }
 .beach-decor .decor-2 { color: #F7A8C8; font-size: 9px; }
 
+/* ---------- ฉากสนามหญ้าริมสระ ---------- */
+.scene-pond { background: linear-gradient(#BFE0F2 0%, #E4F1F4 42%); }
+.scene-pond.night { background: linear-gradient(#1C2654 0%, #2E3B73 42%); }
+.treeline { position: absolute; left: -4%; right: -4%; top: 36%; height: 18%; background: #557F52; }
+.treeline i { position: absolute; bottom: 40%; border-radius: 50%; background: inherit; }
+.bushes { position: absolute; left: 36%; right: -4%; top: 44%; height: 12%; border-radius: 30px 30px 0 0; background: radial-gradient(#F5B82E 2px, transparent 2.5px) 0 0 / 12px 10px, #6FA65A; }
+.lawn { position: absolute; left: 0; right: 0; top: 52%; bottom: 0; background: linear-gradient(#93CF6C, #7DBE5A); }
+.pond { position: absolute; right: -12%; top: 60%; width: 62%; height: 20%; border-radius: 50%; background: linear-gradient(#B4DAEA, #8CC0D8); box-shadow: 0 0 0 5px #6CA94F; overflow: hidden; overflow: clip; }
+.pond i { position: absolute; height: 3px; border-radius: 3px; background: #ffffffcc; animation: wave-drift 3.2s ease-in-out infinite alternate; }
+.scene-pond.night .treeline { background: #24402A; }
+.scene-pond.night .bushes { background: radial-gradient(#B08A2E 2px, transparent 2.5px) 0 0 / 12px 10px, #2F5A33; }
+.scene-pond.night .lawn { background: linear-gradient(#3F6B3F, #355C36); }
+.scene-pond.night .pond { background: linear-gradient(#2F4F86, #1F3A66); box-shadow: 0 0 0 5px #2F5A33; }
+
+/* ---------- ฉากดอยตอนเช้า ---------- */
+.scene-mountain { background: linear-gradient(#BFDDF0 0%, #E3EFF3 45%, #F6E7D2 70%); }
+.scene-mountain.night { background: linear-gradient(#1C2654 0%, #2E3B73 50%, #46507E 72%); }
+.ridge { position: absolute; left: 0; right: 0; }
+.mist { position: absolute; left: -10%; right: -10%; height: 16px; border-radius: 50%; background: #ffffffaa; filter: blur(4px); animation: mist-drift 9s ease-in-out infinite alternate; }
+.mist-one { bottom: 40%; }
+.mist-two { bottom: 30%; opacity: .8; animation-delay: -3s; }
+@keyframes mist-drift { to { transform: translateX(16px); } }
+.ledge { position: absolute; left: -5%; right: -5%; bottom: 0; height: 22%; border-radius: 40% 40% 0 0 / 30% 30% 0 0; background: #B9A58C; box-shadow: inset 0 6px 0 #CDBBA2; }
+.post { position: absolute; right: 7%; bottom: 14%; width: 22px; height: 62%; border-radius: 4px; background: #8B6248; box-shadow: inset -5px 0 0 #6E4A35; }
+.scene-mountain.night .mist { opacity: .2; }
+.scene-mountain.night .ledge { background: #7E7266; box-shadow: inset 0 6px 0 #8E8274; }
+.scene-mountain.night .post { background: #5A4032; box-shadow: inset -5px 0 0 #46301F; }
+
+/* ---------- ฉากหาดพระอาทิตย์ตก ---------- */
+.scene-sunset { background: linear-gradient(#F7B977 0%, #FAD08F 38%, #F8C48E 52%); }
+.scene-sunset.night { background: linear-gradient(#1C2654 0%, #2E3B73 38%, #3A4A86 52%); }
+/* พระอาทิตย์ตกที่ขอบฟ้าด้านขวา ตัวละครยืนกลางฉากจะได้ไม่บัง */
+.setting-sun { position: absolute; left: 88%; top: 40%; width: 64px; height: 64px; margin-left: -32px; border-radius: 50%; background: #FFE7A3; box-shadow: 0 0 30px 10px #FFD98A99; }
+.scene-sunset .cloud { background: #F7CBBE; opacity: .85; }
+.scene-sunset.night .cloud { background: #fff9fc; opacity: .25; }
+.island { position: absolute; left: -4%; top: 43%; width: 26%; height: 9%; border-radius: 50% 60% 0 0; background: #3F4A3A; }
+.scene-sunset .sea { background: linear-gradient(#F3B07E, #D88E7D); }
+.scene-sunset.night .sea { background: linear-gradient(#2F4F86, #1F3A66); }
+.sun-glint { position: absolute; left: 88%; top: 0; width: 40px; height: 70%; margin-left: -20px; background: repeating-linear-gradient(#FFE7A3cc 0 3px, transparent 3px 8px); }
+.scene-sunset .sand { background: #EBD2B0; box-shadow: 0 -6px 0 #F4E2C8; }
+.scene-sunset.night .sand { background: #B5A383; box-shadow: 0 -6px 0 #C7B796; }
+
 /* ---------- ฉากในร่ม: คาเฟ่ และห้องนอน ---------- */
 .window { position: absolute; border: 5px solid #fff; border-radius: 12px; background: linear-gradient(#BFE6F3, #E6F5EC); box-shadow: 0 4px 0 #0000000f; }
 .window::before { content: ""; position: absolute; left: calc(50% - 2px); top: 0; bottom: 0; width: 4px; background: #fff; }

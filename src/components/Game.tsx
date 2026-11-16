@@ -218,6 +218,7 @@ export default function Game({ saved, persist }: Props) {
   const applyLook = (look: PresetLook) => {
     setClothingIds(normalizeClothes(look.clothes));
     setGirlAccessoryIds(validIds(girlAccessories, look.accessories));
+    if (look.scene && scenes.some((item) => item.id === look.scene)) setSceneId(look.scene);
   };
   const activeLookId = presetLooks.find(
     (look) => sameSet(normalizeClothes(look.clothes), clothingIds) && sameSet(validIds(girlAccessories, look.accessories), girlAccessoryIds),

@@ -1,5 +1,5 @@
 import type { CSSProperties, ReactNode } from "react";
-import { BEACH_DECOR, CUP_COLORS, FLOWERS, LIGHT_COLORS, STARS } from "@/lib/scene";
+import { BEACH_DECOR, CUP_COLORS, FLOWERS, LIGHT_COLORS, RIDGES, STARS, TREE_BUMPS, polygonCss } from "@/lib/scene";
 import { scenes, type SceneId } from "@/config/scenes";
 import type { Festival } from "@/config/festivals";
 
@@ -12,21 +12,38 @@ type Props = {
   label?: string;
 };
 
-// ท้องฟ้าของฉากกลางแจ้ง: พระอาทิตย์/พระจันทร์ ดาว และเมฆ
-function Sky({ night }: { night: boolean }) {
+function Stars() {
+  return (
+    <div className="stars" aria-hidden="true">
+      {STARS.map(([left, top], index) => (
+        <span key={index} style={{ left: `${left}%`, top: `${top}%`, animationDelay: `${(index % 5) * 0.45}s` }} />
+      ))}
+    </div>
+  );
+}
+
+// ท้องฟ้าของฉากกลางแจ้ง: พระอาทิตย์/พระจันทร์ ดาว และเมฆ (sun = false คือไม่วาดพระอาทิตย์มุมขวาบน)
+function Sky({ night, sun = true }: { night: boolean; sun?: boolean }) {
   return (
     <>
-      {night ? <div className="moon" aria-hidden="true" /> : <div className="sun" aria-hidden="true">✺</div>}
-      {night && (
-        <div className="stars" aria-hidden="true">
-          {STARS.map(([left, top], index) => (
-            <span key={index} style={{ left: `${left}%`, top: `${top}%`, animationDelay: `${(index % 5) * 0.45}s` }} />
-          ))}
-        </div>
-      )}
+      {night ? <div className="moon" aria-hidden="true" /> : sun && <div className="sun" aria-hidden="true">✺</div>}
+      {night && <Stars />}
       <div className="cloud cloud-one" aria-hidden="true" />
       <div className="cloud cloud-two" aria-hidden="true" />
     </>
+  );
+}
+
+// ทะเลพร้อมคลื่น ใช้ทั้งชายหาดและหาดพระอาทิตย์ตก
+function Sea({ glint = false }: { glint?: boolean }) {
+  return (
+    <div className="sea" aria-hidden="true">
+      {glint && <div className="sun-glint" />}
+      <i style={{ left: "8%", top: "22%", width: "16%" }} />
+      <i style={{ left: "46%", top: "40%", width: "22%", animationDelay: "-1.2s" }} />
+      <i style={{ left: "70%", top: "16%", width: "14%", animationDelay: "-2s" }} />
+      <i style={{ left: "24%", top: "62%", width: "18%", animationDelay: "-0.6s" }} />
+    </div>
   );
 }
 
@@ -78,15 +95,55 @@ export default function Scene({ children, scene = "meadow", compact = false, nig
         </>
       )}
 
+      {scene === "pond" && (
+        <>
+          <Sky night={night} />
+          <div className="treeline" aria-hidden="true">
+            {TREE_BUMPS.map(([left, size], index) => (
+              <i key={index} style={{ left: `${left}%`, width: size, height: size }} />
+            ))}
+          </div>
+          <div className="bushes" aria-hidden="true" />
+          <div className="lawn" aria-hidden="true" />
+          <div className="pond" aria-hidden="true">
+            <i style={{ left: "22%", top: "30%", width: "20%" }} />
+            <i style={{ left: "50%", top: "58%", width: "26%", animationDelay: "-1.4s" }} />
+          </div>
+        </>
+      )}
+
+      {scene === "mountain" && (
+        <>
+          <Sky night={night} />
+          {RIDGES.map((ridge, index) => (
+            <div
+              key={index}
+              className="ridge"
+              aria-hidden="true"
+              style={{ bottom: `${ridge.bottom}%`, height: `${ridge.height}%`, background: night ? ridge.night : ridge.day, clipPath: polygonCss(ridge.points) }}
+            />
+          ))}
+          <div className="mist mist-one" aria-hidden="true" />
+          <div className="mist mist-two" aria-hidden="true" />
+          <div className="ledge" aria-hidden="true" />
+          <div className="post" aria-hidden="true" />
+        </>
+      )}
+
       {scene === "beach" && (
         <>
           <Sky night={night} />
-          <div className="sea" aria-hidden="true">
-            <i style={{ left: "8%", top: "22%", width: "16%" }} />
-            <i style={{ left: "46%", top: "40%", width: "22%", animationDelay: "-1.2s" }} />
-            <i style={{ left: "70%", top: "16%", width: "14%", animationDelay: "-2s" }} />
-            <i style={{ left: "24%", top: "62%", width: "18%", animationDelay: "-0.6s" }} />
-          </div>
+          <Sea />
+          <div className="sand" aria-hidden="true" />
+        </>
+      )}
+
+      {scene === "sunset" && (
+        <>
+          {!night && <div className="setting-sun" aria-hidden="true" />}
+          <Sky night={night} sun={false} />
+          <div className="island" aria-hidden="true" />
+          <Sea glint={!night} />
           <div className="sand" aria-hidden="true" />
         </>
       )}
@@ -146,7 +203,7 @@ export default function Scene({ children, scene = "meadow", compact = false, nig
         </div>
       )}
 
-      {scene === "beach" && (
+      {(scene === "beach" || scene === "sunset") && (
         <div className="beach-decor" aria-hidden="true">
           {BEACH_DECOR.map((glyph, index) => (
             <span key={index} className={`decor-${index % 3}`} style={{ left: `${index * 12.5 + 3}%`, bottom: `${6 + ((index * 7) % 14)}px` }}>
